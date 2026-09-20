@@ -407,11 +407,16 @@ html, body {
 .celebration-balloon {
   position: absolute;
   bottom: -80px;
-  font-size: 42px;
+  width: 40px;
   animation-name: balloon-float;
   animation-timing-function: linear;
   animation-fill-mode: forwards;
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
+}
+.celebration-balloon svg {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 @keyframes balloon-float {
   0% { transform: translate(0, 0); }
@@ -432,8 +437,6 @@ html, body {
   font-size: 20px;
   padding: 8px 18px;
   border-radius: 999px;
-  background: #fff;
-  color: var(--accent-ink);
   box-shadow: 0 4px 14px rgba(40, 40, 90, 0.2);
 }
 .celebration-float.is-emoji {

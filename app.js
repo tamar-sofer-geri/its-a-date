@@ -363,10 +363,18 @@
       return label === 'birthday' && daysUntil(nextOccurrence(e.month, e.day)) === 0;
     });
     if (!todaysBirthdays.length) return;
-    launchCelebration(todaysBirthdays.map((e) => e.name));
+    launchCelebration(todaysBirthdays);
   }
 
-  function launchCelebration(names) {
+  function balloonSvg(color) {
+    return `<svg viewBox="0 0 40 54" width="40" height="54" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="20" cy="20" rx="18" ry="20" fill="${color}"/>
+      <polygon points="20,40 16,46 24,46" fill="${color}"/>
+      <line x1="20" y1="46" x2="20" y2="54" stroke="#8a8a8a" stroke-width="1.5"/>
+    </svg>`;
+  }
+
+  function launchCelebration(people) {
     celebrationOverlay.innerHTML = '';
     celebrationOverlay.hidden = false;
 
@@ -381,9 +389,11 @@
     }
 
     for (let i = 0; i < 9; i++) {
+      const person = people[i % people.length];
+      const color = GROUP_COLORS[person.groups[0]] || '#e03131';
       const balloon = document.createElement('div');
       balloon.className = 'celebration-balloon';
-      balloon.textContent = '🎈';
+      balloon.innerHTML = balloonSvg(color);
       balloon.style.left = randomBetween(0, 90) + 'vw';
       balloon.style.setProperty('--drift', randomBetween(-40, 40) + 'px');
       balloon.style.animationDuration = randomBetween(6, 9) + 's';
@@ -392,18 +402,23 @@
     }
 
     const floaters = [];
-    names.forEach((name) => {
-      floaters.push({ text: name, isName: true });
-      floaters.push({ text: name, isName: true });
+    people.forEach((p) => {
+      const color = GROUP_COLORS[p.groups[0]] || '#e03131';
+      floaters.push({ text: p.name, isName: true, color });
+      floaters.push({ text: p.name, isName: true, color });
     });
     for (let i = 0; i < 6; i++) {
       floaters.push({ text: '🎉', isName: false });
     }
 
-    floaters.forEach((f, i) => {
+    floaters.forEach((f) => {
       const el = document.createElement('div');
       el.className = 'celebration-float ' + (f.isName ? 'is-name' : 'is-emoji');
       el.textContent = f.text;
+      if (f.isName) {
+        el.style.background = f.color;
+        el.style.color = '#fff';
+      }
       el.style.top = randomBetween(8, 82) + 'vh';
       el.style.setProperty('--vdrift', randomBetween(-40, 40) + 'px');
       el.style.animationDuration = randomBetween(4.5, 7) + 's';
@@ -554,6 +569,25 @@
       attachSwipeToDelete(row, entry);
       entryList.appendChild(wrap);
     });
+
+    updateAppBadge();
+  }
+
+  // ---------- Home-screen icon badge ----------
+  // The Badging API can only draw the browser/OS's own dot-or-number badge on
+  // an installed PWA's icon - there's no way to put a custom emoji on the icon
+  // itself. This sets a badge whenever any entry falls today, as the closest
+  // available equivalent. It only takes effect on platforms that support it
+  // (Chrome/Edge, and installed home-screen apps on iOS 16.4+), and only
+  // updates while the app is open, since there's no push/background service
+  // behind this static site to update it while it's closed.
+  function updateAppBadge() {
+    const hasEventToday = entries.some((e) => daysUntil(nextOccurrence(e.month, e.day)) === 0);
+    if (hasEventToday) {
+      if ('setAppBadge' in navigator) navigator.setAppBadge(1).catch(() => {});
+    } else if ('clearAppBadge' in navigator) {
+      navigator.clearAppBadge().catch(() => {});
+    }
   }
 
   // ---------- Filter chips ----------
