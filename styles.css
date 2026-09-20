@@ -206,7 +206,7 @@ html, body {
   white-space: nowrap;
 }
 .entry-age {
-  font-weight: 600;
+  font-weight: 400;
   color: var(--ink);
 }
 .entry-meta {
