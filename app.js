@@ -430,7 +430,8 @@
         // Don't leave a subscription the server doesn't know about - that
         // would show as "enabled" locally while never actually receiving a push.
         if (sub) await sub.unsubscribe().catch(() => {});
-        alert('Could not enable reminders on this device. Please try again.');
+        const detail = (err && (err.message || err.error_description || err.name)) || String(err);
+        alert('Could not enable reminders on this device:\n' + detail);
       }
       await refreshNotifButton();
     });
