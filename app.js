@@ -346,6 +346,75 @@
       entries = localLoad();
     }
     render();
+    celebrateBirthdaysToday();
+  }
+
+  // ---------- Birthday-today celebration ----------
+  const CONFETTI_COLORS = ['#ff6f91', '#ffd23f', '#4dabf7', '#9c36b5', '#2f9e44', '#f08c00'];
+  const celebrationOverlay = document.getElementById('celebration-overlay');
+
+  function randomBetween(min, max) {
+    return min + Math.random() * (max - min);
+  }
+
+  function celebrateBirthdaysToday() {
+    const todaysBirthdays = entries.filter((e) => {
+      const label = (e.label || '').toLowerCase();
+      return label === 'birthday' && daysUntil(nextOccurrence(e.month, e.day)) === 0;
+    });
+    if (!todaysBirthdays.length) return;
+    launchCelebration(todaysBirthdays.map((e) => e.name));
+  }
+
+  function launchCelebration(names) {
+    celebrationOverlay.innerHTML = '';
+    celebrationOverlay.hidden = false;
+
+    for (let i = 0; i < 90; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = randomBetween(0, 100) + 'vw';
+      piece.style.background = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+      piece.style.animationDuration = randomBetween(2.5, 4.5) + 's';
+      piece.style.animationDelay = randomBetween(0, 2.5) + 's';
+      celebrationOverlay.appendChild(piece);
+    }
+
+    for (let i = 0; i < 9; i++) {
+      const balloon = document.createElement('div');
+      balloon.className = 'celebration-balloon';
+      balloon.textContent = '🎈';
+      balloon.style.left = randomBetween(0, 90) + 'vw';
+      balloon.style.setProperty('--drift', randomBetween(-40, 40) + 'px');
+      balloon.style.animationDuration = randomBetween(6, 9) + 's';
+      balloon.style.animationDelay = randomBetween(0, 2.5) + 's';
+      celebrationOverlay.appendChild(balloon);
+    }
+
+    const floaters = [];
+    names.forEach((name) => {
+      floaters.push({ text: name, isName: true });
+      floaters.push({ text: name, isName: true });
+    });
+    for (let i = 0; i < 6; i++) {
+      floaters.push({ text: '🎉', isName: false });
+    }
+
+    floaters.forEach((f, i) => {
+      const el = document.createElement('div');
+      el.className = 'celebration-float ' + (f.isName ? 'is-name' : 'is-emoji');
+      el.textContent = f.text;
+      el.style.top = randomBetween(8, 82) + 'vh';
+      el.style.setProperty('--vdrift', randomBetween(-40, 40) + 'px');
+      el.style.animationDuration = randomBetween(4.5, 7) + 's';
+      el.style.animationDelay = randomBetween(0, 4) + 's';
+      celebrationOverlay.appendChild(el);
+    });
+
+    setTimeout(() => {
+      celebrationOverlay.hidden = true;
+      celebrationOverlay.innerHTML = '';
+    }, 9000);
   }
 
   // ---------- Mutations ----------
