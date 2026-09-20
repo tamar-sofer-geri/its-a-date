@@ -298,7 +298,7 @@ html, body {
   height: 44px;
   border-radius: 50%;
   border: none;
-  background: var(--ink);
+  background: var(--accent-strong);
   color: #fff;
   font-size: 20px;
   font-weight: 800;
