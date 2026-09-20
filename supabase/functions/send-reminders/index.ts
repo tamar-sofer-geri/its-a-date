@@ -84,6 +84,7 @@ Deno.serve(async (req) => {
 
   let sent = 0;
   const staleEndpoints: string[] = [];
+  const failures: Array<{ endpoint: string; statusCode?: number; message: string }> = [];
 
   for (const sub of subs) {
     try {
@@ -97,6 +98,11 @@ Deno.serve(async (req) => {
         staleEndpoints.push(sub.endpoint);
       } else {
         console.error("push failed for", sub.endpoint, err);
+        failures.push({
+          endpoint: sub.endpoint,
+          statusCode: err && err.statusCode,
+          message: (err && (err.body || err.message)) || String(err),
+        });
       }
     }
   }
@@ -105,5 +111,5 @@ Deno.serve(async (req) => {
     await supabase.from("push_subscriptions").delete().in("endpoint", staleEndpoints);
   }
 
-  return new Response(JSON.stringify({ sent, events: matches.length, when }));
+  return new Response(JSON.stringify({ sent, events: matches.length, when, failures }));
 });
