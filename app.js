@@ -197,18 +197,12 @@
 
   function setEntryIcon(btn, label) {
     const l = label.toLowerCase();
-    btn.innerHTML = '';
     if (l === 'anniversary') {
       btn.textContent = '🥂';
     } else if (l.includes('dia')) {
       btn.textContent = '💉';
     } else {
-      const img = document.createElement('img');
-      img.src = 'icon.svg?v=1';
-      img.alt = '';
-      img.width = 20;
-      img.height = 20;
-      btn.appendChild(img);
+      btn.textContent = '🎂';
     }
   }
 
