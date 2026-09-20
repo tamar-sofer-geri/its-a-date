@@ -932,6 +932,15 @@
     row.addEventListener('pointercancel', finishDrag);
   }
 
+  // ---------- Scroll to top ----------
+  const scrollTopBtn = document.getElementById('scroll-top-btn');
+  window.addEventListener('scroll', () => {
+    scrollTopBtn.hidden = window.scrollY < 400;
+  }, { passive: true });
+  scrollTopBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
   // ---------- Back-gesture guard (Android) ----------
   function closeAnyOpenModal() {
     if (!entryModal.hidden) { entryModal.hidden = true; return true; }

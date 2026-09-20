@@ -16,7 +16,7 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=1" />
   <link rel="icon" href="icon.svg?v=1" type="image/svg+xml" />
   <title>It's a Date</title>
-  <link rel="stylesheet" href="styles.css?v=12" />
+  <link rel="stylesheet" href="styles.css?v=13" />
 </head>
 <body>
   <div class="app">
@@ -43,6 +43,8 @@
       <p id="empty-state" class="empty-state" hidden>No dates in this group yet.</p>
     </main>
   </div>
+
+  <button id="scroll-top-btn" class="scroll-top-btn" type="button" aria-label="Scroll to top" hidden>↑</button>
 
   <!-- Birthday-today celebration overlay -->
   <div id="celebration-overlay" aria-hidden="true" hidden></div>
@@ -103,6 +105,6 @@
   <!-- Supabase client (no build step) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="config.js?v=3" defer></script>
-  <script src="app.js?v=14" defer></script>
+  <script src="app.js?v=15" defer></script>
 </body>
 </html>

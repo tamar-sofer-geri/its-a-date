@@ -289,6 +289,27 @@ html, body {
 }
 .entry-gcal-btn.icon-anniversary:hover { background: #9ba0c2; }
 
+.scroll-top-btn {
+  position: fixed;
+  right: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  z-index: 25;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: var(--ink);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(40, 40, 90, 0.3);
+}
+
 .empty-state {
   text-align: center;
   color: var(--muted);
