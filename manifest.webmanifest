@@ -1,0 +1,14 @@
+{
+  "name": "It's a Date",
+  "short_name": "It's a Date",
+  "description": "Birthdays and anniversaries in one place, grouped and color-coded",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#fffaf5",
+  "theme_color": "#ff6f91",
+  "icons": [
+    { "src": "icon.svg?v=1", "type": "image/svg+xml", "sizes": "any", "purpose": "any" },
+    { "src": "apple-touch-icon.png?v=1", "type": "image/png", "sizes": "180x180", "purpose": "any" },
+    { "src": "icon-maskable-512.png?v=1", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
+  ]
+}

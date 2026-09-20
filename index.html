@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ff6f91" />
+  <!-- Add-to-home-screen support -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="It's a Date" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;800&display=swap" rel="stylesheet" />
+  <link rel="manifest" href="manifest.webmanifest?v=1" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=1" />
+  <link rel="icon" href="icon.svg?v=1" type="image/svg+xml" />
+  <title>It's a Date</title>
+  <link rel="stylesheet" href="styles.css?v=2" />
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <img class="brand-logo" src="icon.svg?v=1" alt="" width="44" height="44" />
+      <h1 class="brand-title"><span class="brand-title-thin">It's a</span> <span class="brand-title-bold">Date</span></h1>
+      <button id="header-add-btn" class="header-add-btn" type="button" aria-label="Add a date">+</button>
+    </header>
+
+    <nav id="filter-chips" class="filter-chips" aria-label="Filter by group">
+      <button class="chip is-active" type="button" data-group="all">All</button>
+      <button class="chip" type="button" data-group="Yoga">Yoga</button>
+      <button class="chip" type="button" data-group="Sofers">Sofers</button>
+      <button class="chip" type="button" data-group="Geris">Geris</button>
+      <button class="chip" type="button" data-group="Friends">Friends</button>
+      <button class="chip" type="button" data-group="Dia-birthdays">Dia-birthdays</button>
+    </nav>
+
+    <main>
+      <ul id="entry-list" class="entry-list" aria-live="polite"></ul>
+      <p id="empty-state" class="empty-state" hidden>No dates in this group yet.</p>
+    </main>
+  </div>
+
+  <!-- Add/Edit date modal -->
+  <div id="entry-modal" class="modal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h2 id="modal-title">Add a date</h2>
+      <form id="entry-form">
+        <label for="name-input">Name</label>
+        <input id="name-input" name="name" type="text" autocomplete="off" placeholder="e.g. Noa Geri" required />
+
+        <div class="field-row">
+          <div class="field-col">
+            <label for="month-input">Month</label>
+            <select id="month-input" name="month" required></select>
+          </div>
+          <div class="field-col">
+            <label for="day-input">Day</label>
+            <select id="day-input" name="day" required></select>
+          </div>
+          <div class="field-col">
+            <label for="year-input">Year <span class="muted">(optional)</span></label>
+            <input id="year-input" name="year" type="number" inputmode="numeric" min="1900" max="2100" placeholder="1990" />
+          </div>
+        </div>
+
+        <label for="group-input">Group</label>
+        <select id="group-input" name="group"></select>
+
+        <label for="label-input">Occasion</label>
+        <input id="label-input" name="label" type="text" autocomplete="off" placeholder="Birthday" />
+
+        <div class="modal-actions modal-actions-split">
+          <button type="button" id="delete-btn" class="btn btn-danger" hidden>Delete</button>
+          <div class="modal-actions-right">
+            <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Saved-to-app confirmation, with a one-click add to Google Calendar -->
+  <div id="saved-toast" class="saved-toast" hidden>
+    <span id="saved-toast-text">Saved!</span>
+    <a id="saved-toast-gcal" class="saved-toast-link" href="#" target="_blank" rel="noopener">Add to Google Calendar</a>
+  </div>
+
+  <!-- Supabase client (no build step) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="config.js?v=1" defer></script>
+  <script src="app.js?v=2" defer></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="It's a Date">
+  <rect width="512" height="512" rx="112" fill="#fff1e6"/>
+
+  <!-- calendar rings -->
+  <rect x="176" y="88" width="20" height="46" rx="10" fill="#e14d73"/>
+  <rect x="316" y="88" width="20" height="46" rx="10" fill="#e14d73"/>
+
+  <!-- calendar page -->
+  <rect x="126" y="110" width="260" height="230" rx="20" fill="#ffffff" stroke="#f0d9c2" stroke-width="6"/>
+
+  <!-- calendar header (rounded top only) -->
+  <rect x="126" y="110" width="260" height="54" rx="20" fill="#ff6f91"/>
+  <rect x="126" y="137" width="260" height="27" fill="#ff6f91"/>
+
+  <!-- date cells -->
+  <circle cx="168" cy="200" r="14" fill="#fbe4d0"/>
+  <circle cx="216" cy="200" r="14" fill="#fbe4d0"/>
+  <circle cx="264" cy="200" r="14" fill="#fbe4d0"/>
+  <circle cx="312" cy="200" r="14" fill="#fbe4d0"/>
+  <circle cx="168" cy="244" r="14" fill="#fbe4d0"/>
+  <circle cx="216" cy="244" r="14" fill="#fbe4d0"/>
+  <circle cx="312" cy="244" r="14" fill="#fbe4d0"/>
+  <!-- the birthday, highlighted -->
+  <circle cx="264" cy="244" r="16" fill="#ffd23f" stroke="#f7b500" stroke-width="4"/>
+
+  <!-- cake, overlapping the bottom of the calendar -->
+  <rect x="186" y="338" width="140" height="60" rx="14" fill="#8bd3c7" stroke="#4fae9c" stroke-width="6"/>
+  <rect x="211" y="298" width="90" height="50" rx="12" fill="#f6a6c1" stroke="#e0709a" stroke-width="6"/>
+
+  <!-- candle -->
+  <rect x="250" y="258" width="12" height="44" rx="4" fill="#ffe08a" stroke="#e8b93c" stroke-width="3"/>
+  <path d="M256,240 C248,252 248,264 256,268 C264,264 264,252 256,240 Z" fill="#ffb238"/>
+</svg>
