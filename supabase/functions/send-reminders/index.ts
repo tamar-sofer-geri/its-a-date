@@ -1,5 +1,11 @@
-// Runs once a day (via a Supabase Cron Job) to push a reminder for any
-// entry in `dates` whose month/day match today, to every subscribed device.
+// Runs twice a day (via two Supabase Cron Jobs) to push a reminder for any
+// entry in `dates` whose month/day match the target date, to every
+// subscribed device. Called with no query string (or ?when=today) for the
+// morning-of check, and ?when=tomorrow for a heads-up the night before.
+//
+// Dates are evaluated in America/Los_Angeles, not the server's UTC clock -
+// otherwise the ?when=tomorrow run at 10pm Pacific (already past midnight
+// UTC) would compute the wrong day.
 //
 // Required secrets (set with `supabase secrets set NAME=value`, never
 // committed to the repo):
@@ -22,19 +28,33 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 webpush.setVapidDetails("mailto:noam@geri.org", VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
 
+function pacificMonthDay(offsetDays: number) {
+  const shifted = new Date(Date.now() + offsetDays * 86400000);
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Los_Angeles",
+    month: "numeric",
+    day: "numeric",
+  }).formatToParts(shifted);
+  return {
+    month: Number(parts.find((p) => p.type === "month")!.value),
+    day: Number(parts.find((p) => p.type === "day")!.value),
+  };
+}
+
 Deno.serve(async (req) => {
   const auth = req.headers.get("Authorization") || "";
   if (auth !== `Bearer ${CRON_SECRET}`) {
     return new Response("Unauthorized", { status: 401 });
   }
 
+  const url = new URL(req.url);
+  const isTomorrow = url.searchParams.get("when") === "tomorrow";
+  const { month, day } = pacificMonthDay(isTomorrow ? 1 : 0);
+  const when = isTomorrow ? "Tomorrow" : "Today";
+
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-  const now = new Date();
-  const month = now.getMonth() + 1;
-  const day = now.getDate();
-
-  const { data: todaysDates, error: datesError } = await supabase
+  const { data: matches, error: datesError } = await supabase
     .from("dates")
     .select("*")
     .eq("month", month)
@@ -43,8 +63,8 @@ Deno.serve(async (req) => {
   if (datesError) {
     return new Response(JSON.stringify({ error: datesError.message }), { status: 500 });
   }
-  if (!todaysDates || todaysDates.length === 0) {
-    return new Response(JSON.stringify({ sent: 0, reason: "no events today" }));
+  if (!matches || matches.length === 0) {
+    return new Response(JSON.stringify({ sent: 0, reason: `no events ${when.toLowerCase()}` }));
   }
 
   const { data: subs, error: subsError } = await supabase.from("push_subscriptions").select("*");
@@ -56,9 +76,9 @@ Deno.serve(async (req) => {
   }
 
   const body =
-    todaysDates.length === 1
-      ? `Today: ${todaysDates[0].name}'s ${(todaysDates[0].label || "Birthday").toLowerCase()}!`
-      : `Today: ${todaysDates.map((d) => d.name).join(", ")}`;
+    matches.length === 1
+      ? `${when}: ${matches[0].name}'s ${(matches[0].label || "Birthday").toLowerCase()}!`
+      : `${when}: ${matches.map((d) => d.name).join(", ")}`;
 
   const payload = JSON.stringify({ title: "It's a Date", body, url: "./" });
 
@@ -85,5 +105,5 @@ Deno.serve(async (req) => {
     await supabase.from("push_subscriptions").delete().in("endpoint", staleEndpoints);
   }
 
-  return new Response(JSON.stringify({ sent, events: todaysDates.length }));
+  return new Response(JSON.stringify({ sent, events: matches.length, when }));
 });

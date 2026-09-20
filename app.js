@@ -383,7 +383,7 @@
       { endpoint: json.endpoint, p256dh: json.keys.p256dh, auth: json.keys.auth },
       { onConflict: 'endpoint' }
     );
-    if (error) console.error(error);
+    if (error) throw error;
   }
 
   async function removeSubscription(endpoint) {
@@ -418,15 +418,19 @@
         alert('Reminders need notification permission — you can enable it in your browser or app settings.');
         return;
       }
+      let sub = null;
       try {
-        const sub = await swRegistration.pushManager.subscribe({
+        sub = await swRegistration.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(config.vapidPublicKey),
         });
         await saveSubscription(sub);
       } catch (err) {
         console.error('Push subscribe failed', err);
-        alert('Could not enable reminders on this device.');
+        // Don't leave a subscription the server doesn't know about - that
+        // would show as "enabled" locally while never actually receiving a push.
+        if (sub) await sub.unsubscribe().catch(() => {});
+        alert('Could not enable reminders on this device. Please try again.');
       }
       await refreshNotifButton();
     });
