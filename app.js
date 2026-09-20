@@ -70,6 +70,68 @@
     { name: "Jonathan Rubel, JR.", month: 12, day: 29, year: 1964, group: "Sofers", label: "Birthday" }
   ];
 
+  // Second batch: imported from a birthdays calendar on a different account.
+  // Kept separate from SEED_ENTRIES so applyNewSeedBatches() can add these to
+  // installs that already seeded the first batch, without duplicating it.
+  const SEED_ENTRIES_2 = [
+    { name: "Faina Prager", month: 1, day: 7, year: 2023, group: "Friends", label: "Birthday" },
+    { name: "Tamar Sofer-Geri", month: 1, day: 11, year: 1968, group: "Friends", label: "Birthday" },
+    { name: "Wendy Geri", month: 1, day: 26, year: 2023, group: "Geris", label: "Anniversary" },
+    { name: "Christina & Phillip Mills Leslie", month: 2, day: 10, year: 2010, group: "Friends", label: "Birthday" },
+    { name: "Yael Geri", month: 2, day: 19, year: 2000, group: "Geris", label: "Birthday" },
+    { name: "Harper", month: 2, day: 24, year: 2023, group: "Friends", label: "Birthday" },
+    { name: "Laura Geri", month: 2, day: 27, year: 1965, group: "Geris", label: "Birthday" },
+    { name: "Aretha Fiebig", month: 2, day: 28, year: 2023, group: "Friends", label: "Birthday" },
+    { name: "Eleanor", month: 3, day: 13, year: 2026, group: "Friends", label: "Birthday" },
+    { name: "Ilan Geri", month: 3, day: 17, year: 1962, group: "Geris", label: "Birthday" },
+    { name: "Ellen Waxman", month: 3, day: 21, year: 2009, group: "Friends", label: "Birthday" },
+    { name: "Nomi Sofer", month: 4, day: 2, year: 1966, group: "Sofers", label: "Birthday" },
+    { name: "Chen Hamam", month: 5, day: 4, year: 2024, group: "Yoga", label: "Birthday" },
+    { name: "Amalia", month: 5, day: 12, year: 2024, group: "Friends", label: "Birthday" },
+    { name: "Tracy Weatherby", month: 5, day: 16, year: 2023, group: "Friends", label: "Birthday" },
+    { name: "Tess Geri", month: 5, day: 20, year: 1996, group: "Geris", label: "Birthday" },
+    { name: "Yoav", month: 5, day: 21, year: 2004, group: "Friends", label: "Birthday" },
+    { name: "Laura Geri", month: 5, day: 24, year: 2023, group: "Geris", label: "Anniversary" },
+    { name: "Miriam Klein", month: 7, day: 6, year: 1948, group: "Friends", label: "Birthday" },
+    { name: "Renana Barak", month: 7, day: 8, year: 2024, group: "Friends", label: "Birthday" },
+    { name: "Doron Simon", month: 8, day: 1, year: 1965, group: "Yoga", label: "Birthday" },
+    { name: "Camille Morhardt", month: 8, day: 6, year: 2024, group: "Friends", label: "Birthday" },
+    { name: "Batya Sella Razon", month: 8, day: 7, year: 2024, group: "Friends", label: "Anniversary" },
+    { name: "Sarit Bentov Schwarz", month: 8, day: 17, year: 2024, group: "Yoga", label: "Anniversary" },
+    { name: "Tess Geri", month: 8, day: 18, year: 2022, group: "Geris", label: "Anniversary" },
+    { name: "Chen Hamam", month: 8, day: 27, year: 1999, group: "Yoga", label: "Anniversary" },
+    { name: "Sarit Bentov Schwarz", month: 9, day: 1, year: 2024, group: "Yoga", label: "Birthday" },
+    { name: "Bev Alpert", month: 9, day: 4, year: 2025, group: "Friends", label: "Anniversary" },
+    { name: "Wendy Geri", month: 9, day: 18, year: 1938, group: "Geris", label: "Birthday" },
+    { name: "Miriam Klein", month: 9, day: 18, year: 2025, group: "Friends", label: "Anniversary" },
+    { name: "Myron Sofer", month: 9, day: 18, year: 2025, group: "Sofers", label: "Anniversary" },
+    { name: "Katie Craft", month: 9, day: 21, year: 1987, group: "Friends", label: "Birthday" },
+    { name: "Danielle Harel", month: 9, day: 26, year: 1970, group: "Friends", label: "Birthday" },
+    { name: "Miko & Dan O'leary Yamaguchi", month: 9, day: 28, year: 2009, group: "Friends", label: "Birthday" },
+    { name: "Roni Greif", month: 10, day: 3, year: 1991, group: "Friends", label: "Anniversary" },
+    { name: "Negev Geri", month: 10, day: 4, year: 2004, group: "Geris", label: "Birthday" },
+    { name: "Ariel Geri", month: 10, day: 8, year: 1995, group: "Geris", label: "Birthday" },
+    { name: "Danny Tice", month: 10, day: 11, year: 2004, group: "Friends", label: "Birthday" },
+    { name: "Ophir", month: 10, day: 13, year: 2000, group: "Friends", label: "Birthday" },
+    { name: "Bev Alpert", month: 10, day: 21, year: 2025, group: "Friends", label: "Birthday" },
+    { name: "Hadar", month: 10, day: 30, year: 2000, group: "Friends", label: "Birthday" },
+    { name: "Stephen Geri", month: 10, day: 31, year: 1960, group: "Geris", label: "Birthday" },
+    { name: "Barbara Marom Pollack", month: 11, day: 2, year: 1947, group: "Friends", label: "Birthday" },
+    { name: "Ma'ayan", month: 11, day: 4, year: 2006, group: "Friends", label: "Birthday" },
+    { name: "Yaara", month: 11, day: 4, year: 2023, group: "Friends", label: "Birthday" },
+    { name: "Greer", month: 11, day: 8, year: 2023, group: "Friends", label: "Birthday" },
+    { name: "Joanne Robb", month: 11, day: 11, year: 2024, group: "Friends", label: "Birthday" },
+    { name: "Galit Simon", month: 11, day: 12, year: 2024, group: "Yoga", label: "Birthday" },
+    { name: "Yaron", month: 11, day: 24, year: 2024, group: "Friends", label: "Birthday" },
+    { name: "Shakaed", month: 11, day: 25, year: 1996, group: "Friends", label: "Birthday" },
+    { name: "Jeffrey Geri", month: 11, day: 26, year: 2011, group: "Geris", label: "Birthday" },
+    { name: "Roni Greif", month: 12, day: 11, year: 1967, group: "Friends", label: "Birthday" },
+    { name: "Shuli Geri", month: 12, day: 11, year: 2023, group: "Geris", label: "Birthday" },
+    { name: "Batya Sella Razon", month: 12, day: 30, year: 1968, group: "Friends", label: "Birthday" },
+    { name: "Sean", month: 12, day: 30, year: 2023, group: "Friends", label: "Birthday" },
+    { name: "Sheryl Klein", month: 12, day: 31, year: 1965, group: "Friends", label: "Birthday" }
+  ];
+
   const config = window.ITSADATE_CONFIG || {};
   const useSupabase = !!(config.supabaseUrl && config.supabaseAnonKey);
   let supabase = null;
@@ -133,19 +195,46 @@
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${formatYYYYMMDD(start)}/${formatYYYYMMDD(end)}&recur=RRULE:FREQ=YEARLY&details=${details}`;
   }
 
+  // Each entry here is a seed batch imported at a different time. Extend this
+  // array (never edit past entries) when importing another calendar, so
+  // installs that already have earlier batches only pick up the new one.
+  const SEED_BATCHES = [SEED_ENTRIES, SEED_ENTRIES_2];
+  const ALL_SEED_ENTRIES = SEED_BATCHES.flat();
+  const SEED_BATCH_KEY = 'its-a-date-seed-batch-v1';
+
   // ---------- Backend: local storage ----------
+  function applyNewSeedBatches(entries) {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const storedBatch = localStorage.getItem(SEED_BATCH_KEY);
+    // A device that already has entries but no batch marker got them from the
+    // pre-migration code, which only ever seeded SEED_BATCHES[0].
+    let appliedBatch = storedBatch !== null ? Number(storedBatch) : (raw === null ? 0 : 1);
+    let changed = false;
+    for (let i = appliedBatch; i < SEED_BATCHES.length; i++) {
+      SEED_BATCHES[i].forEach((e) => entries.push({ id: uid(), ...e }));
+      changed = true;
+    }
+    if (changed) {
+      localStorage.setItem(SEED_BATCH_KEY, String(SEED_BATCHES.length));
+    }
+    return changed;
+  }
+
   function localLoad() {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw === null) {
-      const seeded = SEED_ENTRIES.map((e) => ({ id: uid(), ...e }));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(seeded));
-      return seeded;
+    let entries = [];
+    if (raw !== null) {
+      try {
+        entries = JSON.parse(raw) || [];
+      } catch (e) {
+        entries = [];
+      }
     }
-    try {
-      return JSON.parse(raw) || [];
-    } catch (e) {
-      return [];
+    const changed = applyNewSeedBatches(entries);
+    if (raw === null || changed) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
     }
+    return entries;
   }
   function localSave(list) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
@@ -163,7 +252,7 @@
     const { data, error } = await supabase.from('dates').select('*');
     if (error) throw error;
     if (!data.length) {
-      const { error: insErr } = await supabase.from('dates').insert(SEED_ENTRIES.map(toRow));
+      const { error: insErr } = await supabase.from('dates').insert(ALL_SEED_ENTRIES.map(toRow));
       if (insErr) throw insErr;
       const again = await supabase.from('dates').select('*');
       if (again.error) throw again.error;
