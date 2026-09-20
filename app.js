@@ -1,9 +1,9 @@
 (function () {
   'use strict';
 
-  const GROUPS = ['Yoga', 'Sofers', 'Geris', 'Friends', 'Dia-birthdays'];
+  const GROUPS = ['Framily', 'Sofers', 'Geris', 'Friends', 'Dia-birthdays'];
   const GROUP_COLORS = {
-    Yoga: '#9c36b5',
+    Framily: '#9c36b5',
     Sofers: '#1971c2',
     Geris: '#f08c00',
     Friends: '#e03131',
@@ -22,7 +22,7 @@
     { name: "Gadi Ponte", month: 1, day: 20, year: 2023, groups: ["Friends"], label: "Birthday" },
     { name: "Delali Bruce", month: 1, day: 25, year: 2004, groups: ["Friends"], label: "Birthday" },
     { name: "Melissa and Michael Riordan", month: 1, day: 29, year: 2013, groups: ["Friends"], label: "Birthday" },
-    { name: "Motti Hamam", month: 2, day: 1, year: 2023, groups: ["Yoga"], label: "Birthday" },
+    { name: "Motti Hamam", month: 2, day: 1, year: 2023, groups: ["Framily"], label: "Birthday" },
     { name: "Elizabeth McCracken", month: 2, day: 17, year: 2023, groups: ["Friends"], label: "Birthday" },
     { name: "Henriette Ponte", month: 2, day: 18, year: 2023, groups: ["Friends"], label: "Birthday" },
     { name: "Noa Geri", month: 2, day: 19, year: 2000, groups: ["Geris"], label: "Birthday" },
@@ -31,21 +31,21 @@
     { name: "Nancy Nagel", month: 3, day: 15, year: 2009, groups: ["Friends"], label: "Birthday" },
     { name: "Hilary Brehaut", month: 3, day: 20, year: 2009, groups: ["Friends"], label: "Birthday" },
     { name: "Yoram Barak", month: 3, day: 28, year: 2026, groups: ["Friends"], label: "Birthday" },
-    { name: "Yali Schwarz", month: 4, day: 7, year: 2000, groups: ["Yoga"], label: "Birthday" },
+    { name: "Yali Schwarz", month: 4, day: 7, year: 2000, groups: ["Framily"], label: "Birthday" },
     { name: "Irit Avidov-Shachrur", month: 4, day: 14, year: 2025, groups: ["Friends"], label: "Birthday" },
-    { name: "Neta Simon", month: 4, day: 18, year: 1998, groups: ["Yoga"], label: "Birthday" },
+    { name: "Neta Simon", month: 4, day: 18, year: 1998, groups: ["Framily"], label: "Birthday" },
     { name: "Benjamin Colton Robb", month: 4, day: 28, year: 1999, groups: ["Friends"], label: "Birthday" },
     { name: "Jairi Vargas", month: 5, day: 12, year: 2004, groups: ["Friends"], label: "Birthday" },
     { name: "Jennifer Makower", month: 5, day: 12, year: 2025, groups: ["Friends"], label: "Birthday" },
     { name: "Shiri Eshed-Shahar", month: 5, day: 16, year: 2025, groups: ["Friends"], label: "Birthday" },
-    { name: "Sheer Hamam", month: 5, day: 26, year: 2005, groups: ["Yoga"], label: "Birthday" },
+    { name: "Sheer Hamam", month: 5, day: 26, year: 2005, groups: ["Framily"], label: "Birthday" },
     { name: "Noam", month: 6, day: 11, year: 1998, groups: ["Friends"], label: "Birthday" },
     { name: "Barbara Marom Pollack", month: 6, day: 23, year: 1947, groups: ["Friends"], label: "Birthday" },
     { name: "Mechal Ben Ari", month: 6, day: 24, year: 1993, groups: ["Friends"], label: "Anniversary" },
     { name: "Natsumi Mori", month: 7, day: 12, year: 2023, groups: ["Friends"], label: "Birthday" },
-    { name: "Ido Simon", month: 7, day: 14, year: 1995, groups: ["Yoga"], label: "Birthday" },
+    { name: "Ido Simon", month: 7, day: 14, year: 1995, groups: ["Framily"], label: "Birthday" },
     { name: "Mike Sands", month: 7, day: 14, year: 1955, groups: ["Friends"], label: "Birthday" },
-    { name: "Ellie Schwarz", month: 7, day: 16, year: 2003, groups: ["Yoga"], label: "Birthday" },
+    { name: "Ellie Schwarz", month: 7, day: 16, year: 2003, groups: ["Framily"], label: "Birthday" },
     { name: "Nick Cuttriss", month: 7, day: 16, year: 1980, groups: ["Friends"], label: "Birthday" },
     { name: "Shlomi", month: 7, day: 16, year: 2024, groups: ["Friends"], label: "Birthday" },
     { name: "Ty Geri", month: 7, day: 27, year: 1998, groups: ["Geris"], label: "Birthday" },
@@ -59,13 +59,13 @@
     { name: "Adina", month: 10, day: 24, year: 2024, groups: ["Friends"], label: "Birthday" },
     { name: "Beth Sorenson", month: 10, day: 26, year: 1976, groups: ["Friends"], label: "Birthday" },
     { name: "Juyi Spivak", month: 10, day: 29, year: 2023, groups: ["Friends"], label: "Birthday" },
-    { name: "Noa Simon", month: 10, day: 31, year: 2003, groups: ["Yoga"], label: "Birthday" },
+    { name: "Noa Simon", month: 10, day: 31, year: 2003, groups: ["Framily"], label: "Birthday" },
     { name: "Mechal Ben Ari", month: 11, day: 6, year: 1968, groups: ["Friends"], label: "Birthday" },
     { name: "Sharon Hoffman", month: 11, day: 6, year: 1970, groups: ["Friends"], label: "Birthday" },
     { name: "Zoe Geri", month: 11, day: 8, year: 1994, groups: ["Geris"], label: "Birthday" },
     { name: "Ed Damiano", month: 11, day: 30, year: 2023, groups: ["Friends"], label: "Birthday" },
     { name: "Smadar Sweiry", month: 12, day: 1, year: 2025, groups: ["Friends"], label: "Birthday" },
-    { name: "Larry Katznelson", month: 12, day: 3, year: 2023, groups: ["Yoga"], label: "Birthday" },
+    { name: "Larry Katznelson", month: 12, day: 3, year: 2023, groups: ["Framily"], label: "Birthday" },
     { name: "Laura Myszne", month: 12, day: 25, year: 2024, groups: ["Friends"], label: "Birthday" },
     { name: "Jonathan Rubel, JR.", month: 12, day: 29, year: 1964, groups: ["Sofers"], label: "Birthday" }
   ];
@@ -86,7 +86,7 @@
     { name: "Ilan Geri", month: 3, day: 17, year: 1962, groups: ["Geris"], label: "Birthday" },
     { name: "Ellen Waxman", month: 3, day: 21, year: 2009, groups: ["Friends"], label: "Birthday" },
     { name: "Nomi Sofer", month: 4, day: 2, year: 1966, groups: ["Sofers"], label: "Birthday" },
-    { name: "Chen Hamam", month: 5, day: 4, year: 2024, groups: ["Yoga"], label: "Birthday" },
+    { name: "Chen Hamam", month: 5, day: 4, year: 2024, groups: ["Framily"], label: "Birthday" },
     { name: "Amalia", month: 5, day: 12, year: 2024, groups: ["Friends"], label: "Birthday" },
     { name: "Tracy Weatherby", month: 5, day: 16, year: 2023, groups: ["Friends"], label: "Birthday" },
     { name: "Tess Geri", month: 5, day: 20, year: 1996, groups: ["Geris"], label: "Birthday" },
@@ -94,13 +94,13 @@
     { name: "Laura Geri", month: 5, day: 24, year: 2023, groups: ["Geris"], label: "Anniversary" },
     { name: "Miriam Klein", month: 7, day: 6, year: 1948, groups: ["Friends"], label: "Birthday" },
     { name: "Renana Barak", month: 7, day: 8, year: 2024, groups: ["Friends"], label: "Birthday" },
-    { name: "Doron Simon", month: 8, day: 1, year: 1965, groups: ["Yoga"], label: "Birthday" },
+    { name: "Doron Simon", month: 8, day: 1, year: 1965, groups: ["Framily"], label: "Birthday" },
     { name: "Camille Morhardt", month: 8, day: 6, year: 2024, groups: ["Friends"], label: "Birthday" },
     { name: "Batya Sella Razon", month: 8, day: 7, year: 2024, groups: ["Friends"], label: "Anniversary" },
-    { name: "Sarit Bentov Schwarz", month: 8, day: 17, year: 2024, groups: ["Yoga"], label: "Anniversary" },
+    { name: "Sarit Bentov Schwarz", month: 8, day: 17, year: 2024, groups: ["Framily"], label: "Anniversary" },
     { name: "Tess Geri", month: 8, day: 18, year: 2022, groups: ["Geris"], label: "Anniversary" },
-    { name: "Chen Hamam", month: 8, day: 27, year: 1999, groups: ["Yoga"], label: "Anniversary" },
-    { name: "Sarit Bentov Schwarz", month: 9, day: 1, year: 2024, groups: ["Yoga"], label: "Birthday" },
+    { name: "Chen Hamam", month: 8, day: 27, year: 1999, groups: ["Framily"], label: "Anniversary" },
+    { name: "Sarit Bentov Schwarz", month: 9, day: 1, year: 2024, groups: ["Framily"], label: "Birthday" },
     { name: "Bev Alpert", month: 9, day: 4, year: 2025, groups: ["Friends"], label: "Anniversary" },
     { name: "Wendy Geri", month: 9, day: 18, year: 1938, groups: ["Geris"], label: "Birthday" },
     { name: "Miriam Klein", month: 9, day: 18, year: 2025, groups: ["Friends"], label: "Anniversary" },
@@ -121,7 +121,7 @@
     { name: "Yaara", month: 11, day: 4, year: 2023, groups: ["Friends"], label: "Birthday" },
     { name: "Greer", month: 11, day: 8, year: 2023, groups: ["Friends"], label: "Birthday" },
     { name: "Joanne Robb", month: 11, day: 11, year: 2024, groups: ["Friends"], label: "Birthday" },
-    { name: "Galit Simon", month: 11, day: 12, year: 2024, groups: ["Yoga"], label: "Birthday" },
+    { name: "Galit Simon", month: 11, day: 12, year: 2024, groups: ["Framily"], label: "Birthday" },
     { name: "Yaron", month: 11, day: 24, year: 2024, groups: ["Friends"], label: "Birthday" },
     { name: "Shakaed", month: 11, day: 25, year: 1996, groups: ["Friends"], label: "Birthday" },
     { name: "Jeffrey Geri", month: 11, day: 26, year: 2011, groups: ["Geris"], label: "Birthday" },
@@ -197,12 +197,16 @@
 
   function setEntryIcon(btn, label) {
     const l = label.toLowerCase();
+    btn.classList.remove('icon-birthday', 'icon-anniversary', 'icon-dia');
     if (l === 'anniversary') {
       btn.textContent = '🥂';
+      btn.classList.add('icon-anniversary');
     } else if (l.includes('dia')) {
       btn.textContent = '💉';
+      btn.classList.add('icon-dia');
     } else {
       btn.textContent = '🎂';
+      btn.classList.add('icon-birthday');
     }
   }
 
@@ -245,6 +249,23 @@
     return changed;
   }
 
+  // Group names that were renamed after some devices already had entries
+  // tagged with the old name. Extend this map (never remove old entries)
+  // whenever a group gets renamed again.
+  const GROUP_RENAMES = { Yoga: 'Framily' };
+  function renameLegacyGroups(entries) {
+    let changed = false;
+    entries.forEach((e) => {
+      e.groups.forEach((g, i) => {
+        if (GROUP_RENAMES[g]) {
+          e.groups[i] = GROUP_RENAMES[g];
+          changed = true;
+        }
+      });
+    });
+    return changed;
+  }
+
   function localLoad() {
     const raw = localStorage.getItem(STORAGE_KEY);
     let entries = [];
@@ -257,7 +278,8 @@
     }
     const batchesChanged = applyNewSeedBatches(entries);
     const groupsChanged = migrateSingularGroup(entries);
-    if (raw === null || batchesChanged || groupsChanged) {
+    const renamedChanged = renameLegacyGroups(entries);
+    if (raw === null || batchesChanged || groupsChanged || renamedChanged) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
     }
     return entries;

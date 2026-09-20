@@ -251,6 +251,12 @@ html, body {
   filter: saturate(1.4) contrast(1.1);
 }
 .entry-gcal-btn:hover { background: #c7cbdd; }
+.entry-gcal-btn.icon-anniversary {
+  background: #b7bcd6;
+  border-color: #9ba0c2;
+  filter: saturate(1.9) contrast(1.35) brightness(0.92);
+}
+.entry-gcal-btn.icon-anniversary:hover { background: #9ba0c2; }
 
 .empty-state {
   text-align: center;
