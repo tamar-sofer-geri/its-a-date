@@ -134,13 +134,16 @@
 
   const config = window.ITSADATE_CONFIG || {};
   const useSupabase = !!(config.supabaseUrl && config.supabaseAnonKey);
+  const canUsePush = useSupabase && !!config.vapidPublicKey && 'serviceWorker' in navigator && 'PushManager' in window;
   let supabase = null;
   let entries = [];
   let activeFilter = 'all';
+  let swRegistration = null;
 
   const entryList = document.getElementById('entry-list');
   const emptyState = document.getElementById('empty-state');
   const filterChips = document.getElementById('filter-chips');
+  const notifBtn = document.getElementById('notif-btn');
 
   function uid() {
     return 'id-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -300,7 +303,13 @@
     const { data, error } = await supabase.from('dates').select('*');
     if (error) throw error;
     if (!data.length) {
-      const { error: insErr } = await supabase.from('dates').insert(ALL_SEED_ENTRIES.map(toRow));
+      // Seed from whatever's already in localStorage on this device (which
+      // may include edits made before Supabase was configured) rather than
+      // the static seed list, so switching backends never loses real data.
+      // On a brand-new device with nothing local yet, localLoad() itself
+      // falls back to the static seed.
+      const seedSource = localLoad();
+      const { error: insErr } = await supabase.from('dates').insert(seedSource.map(toRow));
       if (insErr) throw insErr;
       const again = await supabase.from('dates').select('*');
       if (again.error) throw again.error;
@@ -347,6 +356,80 @@
     }
     render();
     celebrateBirthdaysToday();
+    initPush();
+  }
+
+  // ---------- Push reminders ----------
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    const output = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; i++) output[i] = rawData.charCodeAt(i);
+    return output;
+  }
+
+  async function refreshNotifButton() {
+    if (!swRegistration) return;
+    const sub = await swRegistration.pushManager.getSubscription();
+    const enabled = !!sub && Notification.permission === 'granted';
+    notifBtn.classList.toggle('is-enabled', enabled);
+    notifBtn.title = enabled ? 'Reminders on — tap to turn off' : 'Tap to enable reminders';
+  }
+
+  async function saveSubscription(sub) {
+    const json = sub.toJSON();
+    const { error } = await supabase.from('push_subscriptions').upsert(
+      { endpoint: json.endpoint, p256dh: json.keys.p256dh, auth: json.keys.auth },
+      { onConflict: 'endpoint' }
+    );
+    if (error) console.error(error);
+  }
+
+  async function removeSubscription(endpoint) {
+    const { error } = await supabase.from('push_subscriptions').delete().eq('endpoint', endpoint);
+    if (error) console.error(error);
+  }
+
+  async function initPush() {
+    if (!canUsePush) return;
+    try {
+      swRegistration = await navigator.serviceWorker.register('sw.js');
+    } catch (err) {
+      console.error('Service worker registration failed', err);
+      return;
+    }
+    notifBtn.hidden = false;
+    await refreshNotifButton();
+  }
+
+  if (notifBtn) {
+    notifBtn.addEventListener('click', async () => {
+      if (!swRegistration) return;
+      const existing = await swRegistration.pushManager.getSubscription();
+      if (existing) {
+        await removeSubscription(existing.endpoint);
+        await existing.unsubscribe();
+        await refreshNotifButton();
+        return;
+      }
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        alert('Reminders need notification permission — you can enable it in your browser or app settings.');
+        return;
+      }
+      try {
+        const sub = await swRegistration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(config.vapidPublicKey),
+        });
+        await saveSubscription(sub);
+      } catch (err) {
+        console.error('Push subscribe failed', err);
+        alert('Could not enable reminders on this device.');
+      }
+      await refreshNotifButton();
+    });
   }
 
   // ---------- Birthday-today celebration ----------

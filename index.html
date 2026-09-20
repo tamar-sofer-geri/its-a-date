@@ -16,14 +16,17 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=1" />
   <link rel="icon" href="icon.svg?v=1" type="image/svg+xml" />
   <title>It's a Date</title>
-  <link rel="stylesheet" href="styles.css?v=11" />
+  <link rel="stylesheet" href="styles.css?v=12" />
 </head>
 <body>
   <div class="app">
     <header class="app-header">
       <img class="brand-logo" src="icon.svg?v=1" alt="" width="44" height="44" />
       <h1 class="brand-title"><span class="brand-title-thin">It's a</span> <span class="brand-title-bold">Date</span></h1>
-      <button id="header-add-btn" class="header-add-btn" type="button" aria-label="Add a date">+</button>
+      <div class="header-actions">
+        <button id="notif-btn" class="header-icon-btn" type="button" aria-label="Enable reminders" hidden>🔔</button>
+        <button id="header-add-btn" class="header-add-btn" type="button" aria-label="Add a date">+</button>
+      </div>
     </header>
 
     <nav id="filter-chips" class="filter-chips" aria-label="Filter by group">
@@ -100,6 +103,6 @@
   <!-- Supabase client (no build step) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="config.js?v=1" defer></script>
-  <script src="app.js?v=11" defer></script>
+  <script src="app.js?v=12" defer></script>
 </body>
 </html>
