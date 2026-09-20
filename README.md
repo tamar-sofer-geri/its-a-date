@@ -68,9 +68,13 @@ create table if not exists public.push_subscriptions (
   created_at timestamptz not null default now()
 );
 alter table public.push_subscriptions enable row level security;
+create policy "public read"   on public.push_subscriptions for select using (true);
 create policy "public insert" on public.push_subscriptions for insert with check (true);
+create policy "public update" on public.push_subscriptions for update using (true) with check (true);
 create policy "public delete" on public.push_subscriptions for delete using (true);
 ```
+
+> All four policies matter even though the client only ever inserts/upserts/deletes: the client's upsert (insert-or-update on a repeat subscribe) is implemented as `INSERT ... ON CONFLICT DO UPDATE`, and Postgres's RLS needs both the **select** policy (to check for an existing conflicting row) and the **update** policy (to authorize the DO UPDATE path) for that statement to succeed at all — even on a subscription's very first save, when there's no actual conflict yet.
 
 **2. Generate a VAPID keypair** — a public/private key pair the app uses to authorize its own push messages. Anyone with `web-push` installed can run `npx web-push generate-vapid-keys`, or use OpenSSL. Put the **public** key in `config.js` (`vapidPublicKey` — safe to commit). The **private** key is a real secret: never put it in a file in this repo — only paste it into the Edge Function's secrets in step 4.
 
