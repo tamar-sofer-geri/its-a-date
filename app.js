@@ -406,7 +406,8 @@
       const days = daysUntil(next);
       const isUpcoming = days <= UPCOMING_WINDOW_DAYS;
       const isNextYear = next.getFullYear() > thisYear;
-      const color = GROUP_COLORS[entry.groups[0]] || '#7d7d94';
+      const primaryGroup = activeFilter === 'all' ? entry.groups[0] : activeFilter;
+      const color = GROUP_COLORS[primaryGroup] || '#7d7d94';
       const label = entry.label || 'Birthday';
 
       const wrap = document.createElement('li');

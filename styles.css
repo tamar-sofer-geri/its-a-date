@@ -207,7 +207,7 @@ html, body {
 }
 .entry-age {
   font-weight: 600;
-  color: var(--group-color, var(--muted));
+  color: var(--ink);
 }
 .entry-meta {
   display: flex;
