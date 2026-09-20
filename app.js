@@ -400,9 +400,12 @@
     entryList.innerHTML = '';
     emptyState.hidden = withDays.length > 0;
 
+    const thisYear = todayMidnight().getFullYear();
+
     withDays.forEach(({ entry, next }) => {
       const days = daysUntil(next);
       const isUpcoming = days <= UPCOMING_WINDOW_DAYS;
+      const isNextYear = next.getFullYear() > thisYear;
       const color = GROUP_COLORS[entry.groups[0]] || '#7d7d94';
       const label = entry.label || 'Birthday';
 
@@ -415,7 +418,7 @@
       deleteBg.setAttribute('aria-hidden', 'true');
 
       const row = document.createElement('div');
-      row.className = 'entry-row' + (isUpcoming ? ' is-upcoming' : '');
+      row.className = 'entry-row' + (isUpcoming ? ' is-upcoming' : '') + (isNextYear ? ' is-next-year' : '');
       row.style.setProperty('--group-color', color);
       row.addEventListener('click', () => {
         if (row.dataset.swiped) { delete row.dataset.swiped; return; }

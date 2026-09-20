@@ -165,6 +165,10 @@ html, body {
   touch-action: pan-y;
 }
 
+.entry-row.is-next-year:not(.is-upcoming) {
+  background: #e9eaef;
+}
+
 .entry-row.is-upcoming {
   background: linear-gradient(0deg, rgba(255, 210, 63, 0.14), rgba(255, 210, 63, 0.14)), var(--card);
 }
@@ -203,7 +207,7 @@ html, body {
 }
 .entry-age {
   font-weight: 600;
-  color: var(--muted);
+  color: var(--group-color, var(--muted));
 }
 .entry-meta {
   display: flex;
