@@ -3,11 +3,11 @@
 
   const GROUPS = ['Yoga', 'Sofers', 'Geris', 'Friends', 'Dia-birthdays'];
   const GROUP_COLORS = {
-    Yoga: '#2f9e44',
-    Sofers: '#f08c00',
-    Geris: '#e03131',
-    Friends: '#1971c2',
-    'Dia-birthdays': '#9c36b5',
+    Yoga: '#9c36b5',
+    Sofers: '#1971c2',
+    Geris: '#f08c00',
+    Friends: '#e03131',
+    'Dia-birthdays': '#4dabf7',
   };
   const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const STORAGE_KEY = 'its-a-date-entries-v1';
@@ -195,6 +195,23 @@
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${formatYYYYMMDD(start)}/${formatYYYYMMDD(end)}&recur=RRULE:FREQ=YEARLY&details=${details}`;
   }
 
+  function setEntryIcon(btn, label) {
+    const l = label.toLowerCase();
+    btn.innerHTML = '';
+    if (l === 'anniversary') {
+      btn.textContent = '🥂';
+    } else if (l.includes('dia')) {
+      btn.textContent = '💉';
+    } else {
+      const img = document.createElement('img');
+      img.src = 'icon.svg?v=1';
+      img.alt = '';
+      img.width = 20;
+      img.height = 20;
+      btn.appendChild(img);
+    }
+  }
+
   // Each entry here is a seed batch imported at a different time. Extend this
   // array (never edit past entries) when importing another calendar, so
   // installs that already have earlier batches only pick up the new one.
@@ -355,11 +372,23 @@
       const days = daysUntil(next);
       const isUpcoming = days <= UPCOMING_WINDOW_DAYS;
       const color = GROUP_COLORS[entry.group] || '#7d7d94';
+      const label = entry.label || 'Birthday';
 
-      const row = document.createElement('li');
+      const wrap = document.createElement('li');
+      wrap.className = 'entry-row-wrap';
+
+      const deleteBg = document.createElement('div');
+      deleteBg.className = 'entry-row-delete-bg';
+      deleteBg.textContent = 'Delete';
+      deleteBg.setAttribute('aria-hidden', 'true');
+
+      const row = document.createElement('div');
       row.className = 'entry-row' + (isUpcoming ? ' is-upcoming' : '');
       row.style.setProperty('--group-color', color);
-      row.addEventListener('click', () => openEntryModal(entry));
+      row.addEventListener('click', () => {
+        if (row.dataset.swiped) { delete row.dataset.swiped; return; }
+        openEntryModal(entry);
+      });
 
       const dateCol = document.createElement('div');
       dateCol.className = 'entry-date';
@@ -372,19 +401,28 @@
       nameEl.className = 'entry-name';
       nameEl.textContent = entry.name;
 
+      if (entry.year && label.toLowerCase() === 'birthday') {
+        const ageEl = document.createElement('span');
+        ageEl.className = 'entry-age';
+        ageEl.textContent = ' ' + (next.getFullYear() - entry.year);
+        nameEl.appendChild(ageEl);
+      }
+
       const meta = document.createElement('div');
       meta.className = 'entry-meta';
 
       const labelEl = document.createElement('span');
       labelEl.className = 'entry-label';
-      labelEl.textContent = entry.label || 'Birthday';
+      labelEl.textContent = label;
       meta.appendChild(labelEl);
 
-      const groupTag = document.createElement('span');
-      groupTag.className = 'entry-group-tag';
-      groupTag.style.setProperty('--group-color', color);
-      groupTag.textContent = entry.group;
-      meta.appendChild(groupTag);
+      if (activeFilter === 'all') {
+        const groupTag = document.createElement('span');
+        groupTag.className = 'entry-group-tag';
+        groupTag.style.setProperty('--group-color', color);
+        groupTag.textContent = entry.group;
+        meta.appendChild(groupTag);
+      }
 
       if (isUpcoming) {
         const badge = document.createElement('span');
@@ -401,11 +439,13 @@
       gcalBtn.target = '_blank';
       gcalBtn.rel = 'noopener';
       gcalBtn.setAttribute('aria-label', `Add ${entry.name} to Google Calendar`);
-      gcalBtn.textContent = '📅';
+      setEntryIcon(gcalBtn, label);
       gcalBtn.addEventListener('click', (e) => e.stopPropagation());
 
       row.append(dateCol, info, gcalBtn);
-      entryList.appendChild(row);
+      wrap.append(deleteBg, row);
+      attachSwipeToDelete(row, entry);
+      entryList.appendChild(wrap);
     });
   }
 
@@ -532,11 +572,99 @@
   let toastTimer = null;
 
   function showSavedToast(entry) {
+    undoBar.hidden = true;
     savedToastText.textContent = `Saved ${entry.name}`;
     savedToastGcal.href = gcalUrl(entry);
     savedToast.hidden = false;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { savedToast.hidden = true; }, 6000);
+  }
+
+  // ---------- Swipe-to-delete with undo ----------
+  const undoBar = document.getElementById('undo-bar');
+  const undoLabel = document.getElementById('undo-label');
+  const undoBtn = document.getElementById('undo-btn');
+  let lastDeleted = null;
+  let undoTimer = null;
+
+  function showUndoBar(entry) {
+    savedToast.hidden = true;
+    undoLabel.textContent = `Deleted ${entry.name}`;
+    undoBar.hidden = false;
+    clearTimeout(undoTimer);
+    undoTimer = setTimeout(() => { undoBar.hidden = true; lastDeleted = null; }, 6000);
+  }
+
+  async function swipeDeleteEntry(entry) {
+    lastDeleted = { ...entry };
+    delete lastDeleted.id;
+    await deleteEntry(entry.id);
+    showUndoBar(entry);
+  }
+
+  undoBtn.addEventListener('click', async () => {
+    if (!lastDeleted) return;
+    clearTimeout(undoTimer);
+    undoBar.hidden = true;
+    const toRestore = lastDeleted;
+    lastDeleted = null;
+    await addEntry(toRestore);
+  });
+
+  function attachSwipeToDelete(row, entry) {
+    let startX = 0;
+    let startY = 0;
+    let dragging = false;
+    let swiping = false;
+
+    row.addEventListener('pointerdown', (e) => {
+      if (e.button !== undefined && e.button !== 0) return;
+      startX = e.clientX;
+      startY = e.clientY;
+      dragging = true;
+      swiping = false;
+      row.style.transition = 'none';
+    });
+
+    row.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if (!swiping) {
+        if (dx > 8 && Math.abs(dx) > Math.abs(dy)) {
+          swiping = true;
+          row.dataset.swiped = '1';
+          row.setPointerCapture(e.pointerId);
+        } else if (Math.abs(dy) > 8 || dx < -8) {
+          dragging = false;
+          return;
+        } else {
+          return;
+        }
+      }
+      const clamped = Math.max(0, Math.min(dx, row.offsetWidth));
+      row.style.transform = `translateX(${clamped}px)`;
+      e.preventDefault();
+    });
+
+    function finishDrag(e) {
+      if (!dragging) return;
+      dragging = false;
+      if (!swiping) return;
+      swiping = false;
+      const dx = e.clientX - startX;
+      const threshold = row.offsetWidth * 0.4;
+      row.style.transition = 'transform 0.2s ease';
+      if (dx > threshold) {
+        row.style.transform = 'translateX(100%)';
+        setTimeout(() => swipeDeleteEntry(entry), 150);
+      } else {
+        row.style.transform = 'translateX(0)';
+      }
+    }
+
+    row.addEventListener('pointerup', finishDrag);
+    row.addEventListener('pointercancel', finishDrag);
   }
 
   // ---------- Back-gesture guard (Android) ----------
