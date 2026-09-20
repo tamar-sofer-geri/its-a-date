@@ -408,6 +408,7 @@
       if (!swRegistration) return;
       const existing = await swRegistration.pushManager.getSubscription();
       if (existing) {
+        if (!confirm('Turn off reminders on this device?')) return;
         await removeSubscription(existing.endpoint);
         await existing.unsubscribe();
         await refreshNotifButton();
