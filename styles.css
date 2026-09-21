@@ -345,6 +345,13 @@ html, body {
   max-height: 88vh;
   overflow-y: auto;
 }
+
+.confirm-message {
+  margin: 4px 0 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+}
 .modal-card h2 { margin: 0 0 14px; font-size: 19px; }
 
 .modal-card label {

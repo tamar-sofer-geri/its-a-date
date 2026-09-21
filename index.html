@@ -16,7 +16,7 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=1" />
   <link rel="icon" href="icon.svg?v=1" type="image/svg+xml" />
   <title>It's a Date</title>
-  <link rel="stylesheet" href="styles.css?v=15" />
+  <link rel="stylesheet" href="styles.css?v=16" />
 </head>
 <body>
   <div class="app">
@@ -90,6 +90,18 @@
     </div>
   </div>
 
+  <!-- Generic confirm dialog (styled replacement for window.confirm) -->
+  <div id="confirm-modal" class="modal" hidden>
+    <div class="modal-backdrop" data-confirm-cancel></div>
+    <div class="modal-card" role="alertdialog" aria-modal="true" aria-labelledby="confirm-message">
+      <p id="confirm-message" class="confirm-message"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-confirm-cancel>Cancel</button>
+        <button type="button" id="confirm-ok-btn" class="btn btn-danger">OK</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Saved-to-app confirmation, with a one-click add to Google Calendar -->
   <div id="saved-toast" class="toast" hidden>
     <span id="saved-toast-text">Saved!</span>
@@ -105,6 +117,6 @@
   <!-- Supabase client (no build step) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="config.js?v=3" defer></script>
-  <script src="app.js?v=19" defer></script>
+  <script src="app.js?v=20" defer></script>
 </body>
 </html>

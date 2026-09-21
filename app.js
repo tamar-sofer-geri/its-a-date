@@ -145,6 +145,31 @@
   const filterChips = document.getElementById('filter-chips');
   const notifBtn = document.getElementById('notif-btn');
 
+  // ---------- Styled confirm dialog (replaces window.confirm) ----------
+  const confirmModal = document.getElementById('confirm-modal');
+  const confirmMessage = document.getElementById('confirm-message');
+  const confirmOkBtn = document.getElementById('confirm-ok-btn');
+
+  function showConfirm(message, okLabel) {
+    return new Promise((resolve) => {
+      confirmMessage.textContent = message;
+      confirmOkBtn.textContent = okLabel || 'OK';
+      confirmModal.hidden = false;
+
+      function finish(result) {
+        confirmModal.hidden = true;
+        confirmOkBtn.removeEventListener('click', onOk);
+        confirmModal.querySelectorAll('[data-confirm-cancel]').forEach((el) => el.removeEventListener('click', onCancel));
+        resolve(result);
+      }
+      function onOk() { finish(true); }
+      function onCancel() { finish(false); }
+
+      confirmOkBtn.addEventListener('click', onOk);
+      confirmModal.querySelectorAll('[data-confirm-cancel]').forEach((el) => el.addEventListener('click', onCancel));
+    });
+  }
+
   function uid() {
     return 'id-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
   }
@@ -451,7 +476,7 @@
         const wasEnabled = notifBtn.classList.contains('is-enabled');
 
         if (wasEnabled) {
-          if (!confirm('Turn off reminders on this device?')) return;
+          if (!(await showConfirm('Turn off reminders on this device?', 'Turn off'))) return;
           const existing = await swRegistration.pushManager.getSubscription();
           if (existing) {
             await removeSubscription(existing.endpoint);
@@ -883,8 +908,8 @@
     if (saved) showSavedToast(saved);
   });
 
-  deleteBtn.addEventListener('click', () => {
-    if (editingId && confirm('Delete this date?')) {
+  deleteBtn.addEventListener('click', async () => {
+    if (editingId && (await showConfirm('Delete this date?', 'Delete'))) {
       deleteEntry(editingId);
       entryModal.hidden = true;
     }
