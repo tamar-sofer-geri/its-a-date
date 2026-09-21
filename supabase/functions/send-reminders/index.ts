@@ -83,7 +83,7 @@ Deno.serve(async (req) => {
   const payload = JSON.stringify({ title: "It's a Date", body, url: "./" });
 
   let sent = 0;
-  const staleEndpoints: string[] = [];
+  const staleEndpoints: Array<{ endpoint: string; detail: string }> = [];
   const failures: Array<{ endpoint: string; statusCode?: number; message: string }> = [];
 
   for (const sub of subs) {
@@ -95,7 +95,10 @@ Deno.serve(async (req) => {
       sent++;
     } catch (err) {
       if (err && (err.statusCode === 404 || err.statusCode === 410)) {
-        staleEndpoints.push(sub.endpoint);
+        staleEndpoints.push({
+          endpoint: sub.endpoint,
+          detail: `statusCode=${err.statusCode} body=${err.body || ""}`,
+        });
       } else {
         console.error("push failed for", sub.endpoint, err);
         failures.push({
@@ -108,7 +111,13 @@ Deno.serve(async (req) => {
   }
 
   if (staleEndpoints.length) {
-    await supabase.from("push_subscriptions").delete().in("endpoint", staleEndpoints);
+    await supabase.from("push_events").insert(
+      staleEndpoints.map((s) => ({ endpoint: s.endpoint, event: "removed_stale", detail: s.detail }))
+    );
+    await supabase
+      .from("push_subscriptions")
+      .delete()
+      .in("endpoint", staleEndpoints.map((s) => s.endpoint));
   }
 
   return new Response(JSON.stringify({ sent, events: matches.length, when, failures }));

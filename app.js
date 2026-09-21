@@ -377,16 +377,26 @@
     notifBtn.title = enabled ? 'Reminders on — tap to turn off' : 'Tap to enable reminders';
   }
 
+  async function logPushEvent(endpoint, event, detail) {
+    const { error } = await supabase.from('push_events').insert({ endpoint, event, detail: detail || null });
+    if (error) console.error('logPushEvent failed', error);
+  }
+
   async function saveSubscription(sub) {
     const json = sub.toJSON();
     const { error } = await supabase.from('push_subscriptions').upsert(
       { endpoint: json.endpoint, p256dh: json.keys.p256dh, auth: json.keys.auth },
       { onConflict: 'endpoint' }
     );
-    if (error) throw error;
+    if (error) {
+      await logPushEvent(json.endpoint, 'save_failed', error.message);
+      throw error;
+    }
+    await logPushEvent(json.endpoint, 'subscribed');
   }
 
   async function removeSubscription(endpoint) {
+    await logPushEvent(endpoint, 'unsubscribed_by_user');
     const { error } = await supabase.from('push_subscriptions').delete().eq('endpoint', endpoint);
     if (error) console.error(error);
   }
@@ -493,6 +503,7 @@
     const floaters = [];
     people.forEach((p) => {
       const color = GROUP_COLORS[p.groups[0]] || '#e03131';
+      floaters.push({ text: p.name, isName: true, color });
       floaters.push({ text: p.name, isName: true, color });
       floaters.push({ text: p.name, isName: true, color });
     });
