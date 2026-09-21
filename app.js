@@ -372,7 +372,19 @@
   async function refreshNotifButton() {
     if (!swRegistration) return;
     const sub = await swRegistration.pushManager.getSubscription();
-    const enabled = !!sub && Notification.permission === 'granted';
+    let enabled = !!sub && Notification.permission === 'granted';
+    if (enabled) {
+      // A local subscription object can outlive its server-side row (an
+      // earlier failed save, or the reminder function pruning it as stale) -
+      // only show "on" when the server actually has it, so the button never
+      // claims reminders work when they don't.
+      const { data, error } = await supabase
+        .from('push_subscriptions')
+        .select('id')
+        .eq('endpoint', sub.endpoint)
+        .maybeSingle();
+      enabled = !error && !!data;
+    }
     notifBtn.classList.toggle('is-enabled', enabled);
     notifBtn.title = enabled ? 'Reminders on — tap to turn off' : 'Tap to enable reminders';
   }
@@ -416,25 +428,42 @@
   if (notifBtn) {
     notifBtn.addEventListener('click', async () => {
       if (!swRegistration) return;
-      const existing = await swRegistration.pushManager.getSubscription();
-      if (existing) {
+
+      // Act on what the button is actually showing, not on whether a local
+      // subscription object happens to exist - those can disagree (a stale
+      // local subscription whose server-side row is gone would otherwise
+      // make a tap-to-enable get treated as tap-to-disable).
+      const wasEnabled = notifBtn.classList.contains('is-enabled');
+
+      if (wasEnabled) {
         if (!confirm('Turn off reminders on this device?')) return;
-        await removeSubscription(existing.endpoint);
-        await existing.unsubscribe();
+        const existing = await swRegistration.pushManager.getSubscription();
+        if (existing) {
+          await removeSubscription(existing.endpoint);
+          await existing.unsubscribe();
+        }
         await refreshNotifButton();
         return;
       }
+
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
         alert('Reminders need notification permission — you can enable it in your browser or app settings.');
+        await refreshNotifButton();
         return;
       }
       let sub = null;
       try {
-        sub = await swRegistration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(config.vapidPublicKey),
-        });
+        // Reuse an existing local subscription if there is one (subscribing
+        // again with the same key just returns it) instead of assuming we
+        // need a brand new one - then make sure the server actually has it.
+        sub = await swRegistration.pushManager.getSubscription();
+        if (!sub) {
+          sub = await swRegistration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(config.vapidPublicKey),
+          });
+        }
         await saveSubscription(sub);
       } catch (err) {
         console.error('Push subscribe failed', err);
