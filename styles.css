@@ -352,6 +352,16 @@ html, body {
   font-weight: 600;
   color: var(--ink);
 }
+
+.modal.modal-center {
+  align-items: center;
+  padding: 0 20px;
+}
+.modal-center .modal-card {
+  border-radius: 20px;
+  padding: 20px;
+  max-height: 60vh;
+}
 .modal-card h2 { margin: 0 0 14px; font-size: 19px; }
 
 .modal-card label {
