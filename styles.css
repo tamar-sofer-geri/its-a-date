@@ -90,6 +90,10 @@ html, body {
   border-color: transparent;
   color: var(--accent-ink);
 }
+.header-icon-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
 
 /* Filter chips */
 .filter-chips {

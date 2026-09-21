@@ -369,15 +369,22 @@
     return output;
   }
 
+  function setNotifVisual(enabled) {
+    notifBtn.classList.toggle('is-enabled', enabled);
+    notifBtn.title = enabled ? 'Reminders on — tap to turn off' : 'Tap to enable reminders';
+  }
+
+  // Thorough check: confirms against the server, not just the browser's
+  // local subscription object (which can outlive its server-side row after
+  // an earlier failed save, or the reminder function pruning it as stale).
+  // Only needed on page load - once *we* just created or removed the row
+  // ourselves, setNotifVisual() alone is enough and avoids an extra
+  // round-trip that would otherwise delay the button's feedback.
   async function refreshNotifButton() {
     if (!swRegistration) return;
     const sub = await swRegistration.pushManager.getSubscription();
     let enabled = !!sub && Notification.permission === 'granted';
     if (enabled) {
-      // A local subscription object can outlive its server-side row (an
-      // earlier failed save, or the reminder function pruning it as stale) -
-      // only show "on" when the server actually has it, so the button never
-      // claims reminders work when they don't.
       const { data, error } = await supabase
         .from('push_subscriptions')
         .select('id')
@@ -385,8 +392,7 @@
         .maybeSingle();
       enabled = !error && !!data;
     }
-    notifBtn.classList.toggle('is-enabled', enabled);
-    notifBtn.title = enabled ? 'Reminders on — tap to turn off' : 'Tap to enable reminders';
+    setNotifVisual(enabled);
   }
 
   async function logPushEvent(endpoint, event, detail) {
@@ -425,55 +431,68 @@
     await refreshNotifButton();
   }
 
+  let notifBusy = false;
+
   if (notifBtn) {
     notifBtn.addEventListener('click', async () => {
-      if (!swRegistration) return;
+      // Ignore taps while a previous toggle is still in flight - without
+      // this, a quick second tap during the (network-bound) turn-on flow
+      // could land just after the button flips to "on" and get read as a
+      // request to turn it back off.
+      if (!swRegistration || notifBusy) return;
+      notifBusy = true;
+      notifBtn.disabled = true;
 
-      // Act on what the button is actually showing, not on whether a local
-      // subscription object happens to exist - those can disagree (a stale
-      // local subscription whose server-side row is gone would otherwise
-      // make a tap-to-enable get treated as tap-to-disable).
-      const wasEnabled = notifBtn.classList.contains('is-enabled');
-
-      if (wasEnabled) {
-        if (!confirm('Turn off reminders on this device?')) return;
-        const existing = await swRegistration.pushManager.getSubscription();
-        if (existing) {
-          await removeSubscription(existing.endpoint);
-          await existing.unsubscribe();
-        }
-        await refreshNotifButton();
-        return;
-      }
-
-      const permission = await Notification.requestPermission();
-      if (permission !== 'granted') {
-        alert('Reminders need notification permission — you can enable it in your browser or app settings.');
-        await refreshNotifButton();
-        return;
-      }
-      let sub = null;
       try {
-        // Reuse an existing local subscription if there is one (subscribing
-        // again with the same key just returns it) instead of assuming we
-        // need a brand new one - then make sure the server actually has it.
-        sub = await swRegistration.pushManager.getSubscription();
-        if (!sub) {
-          sub = await swRegistration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(config.vapidPublicKey),
-          });
+        // Act on what the button is actually showing, not on whether a local
+        // subscription object happens to exist - those can disagree (a stale
+        // local subscription whose server-side row is gone would otherwise
+        // make a tap-to-enable get treated as tap-to-disable).
+        const wasEnabled = notifBtn.classList.contains('is-enabled');
+
+        if (wasEnabled) {
+          if (!confirm('Turn off reminders on this device?')) return;
+          const existing = await swRegistration.pushManager.getSubscription();
+          if (existing) {
+            await removeSubscription(existing.endpoint);
+            await existing.unsubscribe();
+          }
+          setNotifVisual(false);
+          return;
         }
-        await saveSubscription(sub);
-      } catch (err) {
-        console.error('Push subscribe failed', err);
-        // Don't leave a subscription the server doesn't know about - that
-        // would show as "enabled" locally while never actually receiving a push.
-        if (sub) await sub.unsubscribe().catch(() => {});
-        const detail = (err && (err.message || err.error_description || err.name)) || String(err);
-        alert('Could not enable reminders on this device:\n' + detail);
+
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          alert('Reminders need notification permission — you can enable it in your browser or app settings.');
+          return;
+        }
+        let sub = null;
+        try {
+          // Reuse an existing local subscription if there is one (subscribing
+          // again with the same key just returns it) instead of assuming we
+          // need a brand new one - then make sure the server actually has it.
+          sub = await swRegistration.pushManager.getSubscription();
+          if (!sub) {
+            sub = await swRegistration.pushManager.subscribe({
+              userVisibleOnly: true,
+              applicationServerKey: urlBase64ToUint8Array(config.vapidPublicKey),
+            });
+          }
+          await saveSubscription(sub);
+          setNotifVisual(true);
+        } catch (err) {
+          console.error('Push subscribe failed', err);
+          // Don't leave a subscription the server doesn't know about - that
+          // would show as "enabled" locally while never actually receiving a push.
+          if (sub) await sub.unsubscribe().catch(() => {});
+          setNotifVisual(false);
+          const detail = (err && (err.message || err.error_description || err.name)) || String(err);
+          alert('Could not enable reminders on this device:\n' + detail);
+        }
+      } finally {
+        notifBusy = false;
+        notifBtn.disabled = false;
       }
-      await refreshNotifButton();
     });
   }
 
