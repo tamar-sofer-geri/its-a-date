@@ -407,7 +407,7 @@
   // round-trip that would otherwise delay the button's feedback.
   async function refreshNotifButton() {
     if (!swRegistration) return;
-    const sub = await swRegistration.pushManager.getSubscription();
+    let sub = await swRegistration.pushManager.getSubscription();
     let enabled = !!sub && Notification.permission === 'granted';
     if (enabled) {
       const { data, error } = await supabase
@@ -417,6 +417,29 @@
         .maybeSingle();
       enabled = !error && !!data;
     }
+
+    // Self-heal: Android/Chrome can silently drop a push subscription on its
+    // own (battery optimization killing the FCM connection is the common
+    // cause) well before we'd otherwise notice, at the next scheduled send.
+    // If permission is already granted - so no prompt is needed - quietly
+    // create a fresh subscription instead of leaving reminders "off" until
+    // the user happens to notice and re-tap the bell themselves.
+    if (!enabled && Notification.permission === 'granted') {
+      try {
+        sub = await swRegistration.pushManager.getSubscription();
+        if (!sub) {
+          sub = await swRegistration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(config.vapidPublicKey),
+          });
+        }
+        await saveSubscription(sub);
+        enabled = true;
+      } catch (err) {
+        console.error('Auto re-subscribe failed', err);
+      }
+    }
+
     setNotifVisual(enabled);
   }
 
