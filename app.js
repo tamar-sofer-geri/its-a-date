@@ -405,6 +405,27 @@
   // Only needed on page load - once *we* just created or removed the row
   // ourselves, setNotifVisual() alone is enough and avoids an extra
   // round-trip that would otherwise delay the button's feedback.
+  // Records what each app-open found (permission, local vs. server state,
+  // installed-app vs. browser tab) and whether Chrome swapped our endpoint
+  // since last time - evidence for diagnosing why subscriptions keep dying.
+  const LAST_ENDPOINT_KEY = 'its-a-date-last-endpoint';
+  async function logOpenDiagnostics(sub, foundOnServer) {
+    const tail = (e) => (e ? e.slice(-14) : 'none');
+    let last = null;
+    try { last = localStorage.getItem(LAST_ENDPOINT_KEY); } catch (e) { /* ignore */ }
+    const current = sub ? sub.endpoint : null;
+    const standalone = window.matchMedia('(display-mode: standalone)').matches;
+    await logPushEvent(
+      current || 'none',
+      'app_open',
+      `perm=${Notification.permission} local=${tail(current)} onServer=${foundOnServer} standalone=${standalone}`
+    );
+    if (last && current && last !== current) {
+      await logPushEvent(current, 'endpoint_changed', `was ${tail(last)}`);
+    }
+    try { if (current) localStorage.setItem(LAST_ENDPOINT_KEY, current); } catch (e) { /* ignore */ }
+  }
+
   async function refreshNotifButton() {
     if (!swRegistration) return;
     let sub = await swRegistration.pushManager.getSubscription();
@@ -417,6 +438,7 @@
         .maybeSingle();
       enabled = !error && !!data;
     }
+    logOpenDiagnostics(sub, enabled).catch(() => {});
 
     // Self-heal: Android/Chrome can silently drop a push subscription on its
     // own (battery optimization killing the FCM connection is the common
@@ -770,13 +792,10 @@
   }
 
   // ---------- Home-screen icon badge ----------
-  // The Badging API can only draw the browser/OS's own dot-or-number badge on
-  // an installed PWA's icon - there's no way to put a custom emoji on the icon
-  // itself. This sets a badge whenever any entry falls today, as the closest
-  // available equivalent. It only takes effect on platforms that support it
-  // (Chrome/Edge, and installed home-screen apps on iOS 16.4+), and only
-  // updates while the app is open, since there's no push/background service
-  // behind this static site to update it while it's closed.
+  // Only does anything where the Badging API exists (desktop Chrome/Edge,
+  // and installed PWAs on iOS 16.4+). Chrome for Android does NOT expose
+  // navigator.setAppBadge at all - on Android the icon's dot comes solely from
+  // an unread notification sitting in the shade, so there this is a no-op.
   function updateAppBadge() {
     const hasEventToday = entries.some((e) => daysUntil(nextOccurrence(e.month, e.day)) === 0);
     if (hasEventToday) {

@@ -90,7 +90,12 @@ Deno.serve(async (req) => {
     try {
       await webpush.sendNotification(
         { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-        payload
+        payload,
+        // High urgency = FCM high priority, delivered even while the phone is
+        // dozing instead of waiting for a maintenance window. TTL drops a
+        // reminder that couldn't be delivered within 12h rather than showing
+        // "today's birthday" a day late.
+        { urgency: "high", TTL: 12 * 60 * 60 }
       );
       sent++;
     } catch (err) {

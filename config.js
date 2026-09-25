@@ -15,7 +15,8 @@
  * VAPID keypair used to authorize push subscriptions. Leave it blank to
  * disable the reminders feature even when Supabase is configured.
  */
-window.ITSADATE_CONFIG = {
+// `self` (not `window`) so sw.js can importScripts() this same file.
+(typeof window !== 'undefined' ? window : self).ITSADATE_CONFIG = {
   supabaseUrl: "https://vnxmckzbtygyeswfucnw.supabase.co",
   supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZueG1ja3pidHlneWVzd2Z1Y253Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4NzE0OTMsImV4cCI6MjEwNTQ0NzQ5M30.GfIcEwZitWpbmkn4duM9n4rWHacz1ibicIA5HN0fhDI",
   vapidPublicKey: "BNTbPGSb3nCyuoKm7NO5oGrmJTcdEzxWrFExI8rb9ReHFDZX_6zBWahFJLQgnAxriUec7ELQmJJQCymydJbNIGo"
