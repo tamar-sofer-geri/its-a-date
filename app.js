@@ -806,14 +806,28 @@
   }
 
   // ---------- Filter chips ----------
+  const FILTER_KEY = 'its-a-date-filter';
   filterChips.querySelectorAll('.chip').forEach((chip) => {
     chip.style.setProperty('--chip-color', GROUP_COLORS[chip.dataset.group] || '#7d7d94');
     chip.addEventListener('click', () => {
       activeFilter = chip.dataset.group;
       filterChips.querySelectorAll('.chip').forEach((c) => c.classList.toggle('is-active', c === chip));
+      try { sessionStorage.setItem(FILTER_KEY, activeFilter); } catch (e) { /* storage blocked — filter just won't survive a refresh */ }
       render();
     });
   });
+
+  // Pull-to-refresh reloads the page, which would otherwise reset the group
+  // filter to "All". sessionStorage (not localStorage) survives a reload but
+  // not closing the app, so a fresh launch still starts on "All".
+  try {
+    const savedFilter = sessionStorage.getItem(FILTER_KEY);
+    const savedChip = savedFilter && [...filterChips.querySelectorAll('.chip')].find((c) => c.dataset.group === savedFilter);
+    if (savedChip) {
+      activeFilter = savedFilter;
+      filterChips.querySelectorAll('.chip').forEach((c) => c.classList.toggle('is-active', c === savedChip));
+    }
+  } catch (e) { /* storage blocked — start on "All" */ }
 
   // ---------- Add/Edit modal ----------
   const entryModal = document.getElementById('entry-modal');
