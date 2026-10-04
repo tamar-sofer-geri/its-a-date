@@ -380,7 +380,7 @@
       entries = localLoad();
     }
     render();
-    celebrateBirthdaysToday();
+    celebrateToday();
     initPush();
   }
 
@@ -574,13 +574,17 @@
     return min + Math.random() * (max - min);
   }
 
-  function celebrateBirthdaysToday() {
-    const todaysBirthdays = entries.filter((e) => {
+  function celebrateToday() {
+    const todays = entries.filter((e) => {
       const label = (e.label || '').toLowerCase();
-      return label === 'birthday' && daysUntil(nextOccurrence(e.month, e.day)) === 0;
+      return (label === 'birthday' || label === 'anniversary') && daysUntil(nextOccurrence(e.month, e.day)) === 0;
     });
-    if (!todaysBirthdays.length) return;
-    launchCelebration(todaysBirthdays);
+    if (!todays.length) return;
+    launchCelebration(todays);
+  }
+
+  function isAnniversary(entry) {
+    return (entry.label || '').toLowerCase() === 'anniversary';
   }
 
   function balloonSvg(color) {
@@ -610,7 +614,12 @@
       const color = GROUP_COLORS[person.groups[0]] || '#e03131';
       const balloon = document.createElement('div');
       balloon.className = 'celebration-balloon';
-      balloon.innerHTML = balloonSvg(color);
+      if (isAnniversary(person)) {
+        balloon.classList.add('is-glass');
+        balloon.textContent = '🥂';
+      } else {
+        balloon.innerHTML = balloonSvg(color);
+      }
       balloon.style.left = randomBetween(0, 90) + 'vw';
       balloon.style.setProperty('--drift', randomBetween(-40, 40) + 'px');
       balloon.style.animationDuration = randomBetween(6, 9) + 's';
@@ -626,7 +635,8 @@
       floaters.push({ text: p.name, isName: true, color });
     });
     for (let i = 0; i < 6; i++) {
-      floaters.push({ text: '🎉', isName: false });
+      const person = people[i % people.length];
+      floaters.push({ text: isAnniversary(person) ? '🥂' : '🎉', isName: false });
     }
 
     floaters.forEach((f) => {
