@@ -550,3 +550,9 @@ html, body {
   font-weight: 600;
   color: var(--ink);
 }
+
+/* The scroll-to-top arrow sits above modals (z-index) and covered the Save
+   button, so hide it whenever any dialog is open. */
+body:has(.modal:not([hidden])) .scroll-top-btn {
+  display: none;
+}
