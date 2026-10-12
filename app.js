@@ -215,10 +215,20 @@
     return d;
   }
 
+  // Same emoji as the entry's row icon, so events added to Google Calendar
+  // carry it in their title (Calendar has no separate icon field).
+  function emojiForLabel(label) {
+    const l = (label || 'Birthday').toLowerCase();
+    if (l === 'anniversary') return '🥂';
+    if (l.includes('dia')) return '💉';
+    return '🎂';
+  }
+
   function gcalUrl(entry) {
     const start = nextOccurrence(entry.month, entry.day);
     const end = addDays(start, 1);
-    const text = encodeURIComponent(`${entry.name} — ${entry.label || 'Birthday'}`);
+    const label = entry.label || 'Birthday';
+    const text = encodeURIComponent(`${emojiForLabel(label)} ${entry.name}'s ${label.toLowerCase()}`);
     const details = encodeURIComponent("Added from It's a Date");
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${formatYYYYMMDD(start)}/${formatYYYYMMDD(end)}&recur=RRULE:FREQ=YEARLY&details=${details}`;
   }
