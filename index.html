@@ -16,7 +16,7 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=1" />
   <link rel="icon" href="icon.svg?v=1" type="image/svg+xml" />
   <title>It's a Date</title>
-  <link rel="stylesheet" href="styles.css?v=18" />
+  <link rel="stylesheet" href="styles.css?v=19" />
 </head>
 <body>
   <div class="app">
@@ -79,6 +79,11 @@
         <label for="label-input">Occasion</label>
         <select id="label-input" name="label"></select>
 
+        <div class="cal-row">
+          <button type="button" id="modal-gcal-btn" class="btn btn-ghost">📅 Add to Google Calendar</button>
+          <label class="cal-added"><input id="cal-added-input" type="checkbox" /> Already in my calendar</label>
+        </div>
+
         <div class="modal-actions modal-actions-split">
           <button type="button" id="delete-btn" class="btn btn-danger" hidden>Delete</button>
           <div class="modal-actions-right">
@@ -117,6 +122,6 @@
   <!-- Supabase client (no build step) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="config.js?v=4" defer></script>
-  <script src="app.js?v=24" defer></script>
+  <script src="app.js?v=25" defer></script>
 </body>
 </html>

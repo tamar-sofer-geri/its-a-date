@@ -39,6 +39,7 @@ create table if not exists public.dates (
   year int,
   groups text[] not null,
   label text not null default 'Birthday',
+  calendar_added_at timestamptz,
   created_at timestamptz not null default now()
 );
 alter table public.dates enable row level security;
@@ -48,6 +49,8 @@ create policy "public update" on public.dates for update using (true) with check
 create policy "public delete" on public.dates for delete using (true);
 alter publication supabase_realtime add table public.dates;
 ```
+
+`calendar_added_at` records when an entry was sent to Google Calendar (the app can only remember what it sent — it can't look inside the calendar); an existing project can add it with `alter table public.dates add column if not exists calendar_added_at timestamptz;`.
 
 Then paste the project's URL and anon key into `config.js`. The app will seed the *empty* table from whatever is already in this device's `localStorage` on first load (falling back to the built-in starting list if that's empty too) — so switching a device that's already been used over to Supabase won't lose any edits made before it was connected.
 

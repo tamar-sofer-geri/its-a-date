@@ -224,6 +224,17 @@
     return '🎂';
   }
 
+  function formatAddedDate(iso) {
+    return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  // The app can only remember what it sent to Google Calendar - it can't see
+  // inside the calendar - so "added" means "you opened the add-to-calendar
+  // page for this entry", recorded on the entry itself so it syncs everywhere.
+  function markCalendarAdded(id) {
+    return updateEntry(id, { calendarAddedAt: new Date().toISOString() });
+  }
+
   function gcalUrl(entry) {
     const start = nextOccurrence(entry.month, entry.day);
     const end = addDays(start, 1);
@@ -328,10 +339,10 @@
 
   // ---------- Backend: supabase ----------
   function fromRow(row) {
-    return { id: row.id, name: row.name, month: row.month, day: row.day, year: row.year, groups: row.groups, label: row.label };
+    return { id: row.id, name: row.name, month: row.month, day: row.day, year: row.year, groups: row.groups, label: row.label, calendarAddedAt: row.calendar_added_at || null };
   }
   function toRow(entry) {
-    return { name: entry.name, month: entry.month, day: entry.day, year: entry.year, groups: entry.groups, label: entry.label };
+    return { name: entry.name, month: entry.month, day: entry.day, year: entry.year, groups: entry.groups, label: entry.label, calendar_added_at: entry.calendarAddedAt || null };
   }
 
   async function refetchFromSupabase() {
@@ -774,6 +785,14 @@
       labelEl.textContent = label;
       meta.appendChild(labelEl);
 
+      if (entry.calendarAddedAt) {
+        const cal = document.createElement('span');
+        cal.className = 'entry-cal-badge';
+        cal.textContent = '✓ In calendar';
+        cal.title = 'Added to Google Calendar ' + formatAddedDate(entry.calendarAddedAt);
+        meta.appendChild(cal);
+      }
+
       if (activeFilter === 'all') {
         entry.groups.forEach((g) => {
           const groupTag = document.createElement('span');
@@ -800,7 +819,24 @@
       gcalBtn.rel = 'noopener';
       gcalBtn.setAttribute('aria-label', `Add ${entry.name} to Google Calendar`);
       setEntryIcon(gcalBtn, label);
-      gcalBtn.addEventListener('click', (e) => e.stopPropagation());
+      gcalBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (entry.calendarAddedAt) {
+          e.preventDefault();
+          const again = await showConfirm(
+            `${entry.name} was already added to Google Calendar on ${formatAddedDate(entry.calendarAddedAt)}. Add it again?`,
+            'Add again'
+          );
+          if (again) {
+            window.open(gcalUrl(entry), '_blank', 'noopener');
+            setTimeout(() => markCalendarAdded(entry.id), 300);
+          }
+          return;
+        }
+        // Let the link open first; re-rendering inside this handler would
+        // detach the anchor before the browser follows it.
+        setTimeout(() => markCalendarAdded(entry.id), 300);
+      });
 
       row.append(dateCol, info, gcalBtn);
       wrap.append(deleteBg, row);
@@ -859,6 +895,9 @@
   const yearInput = document.getElementById('year-input');
   const groupCheckboxes = document.getElementById('group-checkboxes');
   const labelInput = document.getElementById('label-input');
+  const modalGcalBtn = document.getElementById('modal-gcal-btn');
+  const calAddedInput = document.getElementById('cal-added-input');
+  let editingCalendarAddedAt = null;
   const OCCASIONS = ['Birthday', 'Anniversary', 'Dia-birthday'];
   const deleteBtn = document.getElementById('delete-btn');
   const headerAddBtn = document.getElementById('header-add-btn');
@@ -942,6 +981,8 @@
     yearInput.value = entry && entry.year ? entry.year : '';
     setCheckedGroups(entry ? entry.groups : ['Friends']);
     labelInput.value = entry ? entry.label : 'Birthday';
+    editingCalendarAddedAt = entry ? entry.calendarAddedAt || null : null;
+    calAddedInput.checked = !!editingCalendarAddedAt;
 
     entryModal.hidden = false;
     nameInput.focus();
@@ -971,6 +1012,7 @@
       year: yearInput.value ? Number(yearInput.value) : null,
       groups,
       label: labelInput.value || 'Birthday',
+      calendarAddedAt: calAddedInput.checked ? (editingCalendarAddedAt || new Date().toISOString()) : null,
     };
 
     entryModal.hidden = true;
@@ -997,10 +1039,34 @@
   const savedToastGcal = document.getElementById('saved-toast-gcal');
   let toastTimer = null;
 
+  // Shortcut from the edit/add screen: opens Google Calendar prefilled from
+  // whatever is in the form right now (works before saving, too).
+  modalGcalBtn.addEventListener('click', async () => {
+    const name = nameInput.value.trim();
+    if (!name) { nameInput.focus(); return; }
+    if (calAddedInput.checked) {
+      const again = await showConfirm('This is marked as already in your Google Calendar. Add it again?', 'Add again');
+      if (!again) return;
+    }
+    window.open(
+      gcalUrl({ name, month: Number(monthInput.value), day: Number(dayInput.value), label: labelInput.value || 'Birthday' }),
+      '_blank',
+      'noopener'
+    );
+    calAddedInput.checked = true;
+  });
+
+  let toastEntryId = null;
+  savedToastGcal.addEventListener('click', () => {
+    if (toastEntryId) { const id = toastEntryId; setTimeout(() => markCalendarAdded(id), 300); }
+  });
+
   function showSavedToast(entry) {
+    toastEntryId = entry.id;
     undoBar.hidden = true;
     savedToastText.textContent = `Saved ${entry.name}`;
     savedToastGcal.href = gcalUrl(entry);
+    savedToastGcal.hidden = !!entry.calendarAddedAt;
     savedToast.hidden = false;
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => { savedToast.hidden = true; }, 6000);
