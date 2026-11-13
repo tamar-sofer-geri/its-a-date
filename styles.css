@@ -482,7 +482,7 @@ html, body {
   animation-fill-mode: forwards;
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.15));
 }
-.celebration-balloon.is-glass {
+.celebration-balloon.is-emoji-rise {
   width: auto;
   font-size: 40px;
   line-height: 1;

@@ -598,14 +598,20 @@
   function celebrateToday() {
     const todays = entries.filter((e) => {
       const label = (e.label || '').toLowerCase();
-      return (label === 'birthday' || label === 'anniversary') && daysUntil(nextOccurrence(e.month, e.day)) === 0;
+      const celebrated = label === 'birthday' || label === 'anniversary' || label.includes('dia');
+      return celebrated && daysUntil(nextOccurrence(e.month, e.day)) === 0;
     });
     if (!todays.length) return;
     launchCelebration(todays);
   }
 
-  function isAnniversary(entry) {
-    return (entry.label || '').toLowerCase() === 'anniversary';
+  // Birthdays get balloons + 🎉; anniversaries and dia-birthdays get their own
+  // emoji instead (same mapping as the row icons).
+  function celebrationEmoji(entry) {
+    const label = (entry.label || '').toLowerCase();
+    if (label === 'anniversary') return '🥂';
+    if (label.includes('dia')) return '💉';
+    return null;
   }
 
   function balloonSvg(color) {
@@ -635,9 +641,10 @@
       const color = GROUP_COLORS[person.groups[0]] || '#e03131';
       const balloon = document.createElement('div');
       balloon.className = 'celebration-balloon';
-      if (isAnniversary(person)) {
-        balloon.classList.add('is-glass');
-        balloon.textContent = '🥂';
+      const emoji = celebrationEmoji(person);
+      if (emoji) {
+        balloon.classList.add('is-emoji-rise');
+        balloon.textContent = emoji;
       } else {
         balloon.innerHTML = balloonSvg(color);
       }
@@ -657,7 +664,7 @@
     });
     for (let i = 0; i < 6; i++) {
       const person = people[i % people.length];
-      floaters.push({ text: isAnniversary(person) ? '🥂' : '🎉', isName: false });
+      floaters.push({ text: celebrationEmoji(person) || '🎉', isName: false });
     }
 
     floaters.forEach((f) => {
