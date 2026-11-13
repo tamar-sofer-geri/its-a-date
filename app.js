@@ -605,6 +605,12 @@
     launchCelebration(todays);
   }
 
+  const DIABETES_BLUE = '#1c7ed6';
+
+  function isDiaBirthday(entry) {
+    return (entry.label || '').toLowerCase().includes('dia');
+  }
+
   // Birthdays get balloons + 🎉; anniversaries and dia-birthdays get their own
   // emoji instead (same mapping as the row icons).
   function celebrationEmoji(entry) {
@@ -638,10 +644,17 @@
 
     for (let i = 0; i < 9; i++) {
       const person = people[i % people.length];
-      const color = GROUP_COLORS[person.groups[0]] || '#e03131';
+      let color = GROUP_COLORS[person.groups[0]] || '#e03131';
       const balloon = document.createElement('div');
       balloon.className = 'celebration-balloon';
-      const emoji = celebrationEmoji(person);
+      let emoji = celebrationEmoji(person);
+      if (isDiaBirthday(person)) {
+        // Dia-birthdays alternate blue balloons (diabetes-awareness blue) and
+        // syringes; `turn` counts passes over the list so the alternation
+        // doesn't lock to one person when several celebrate together.
+        color = DIABETES_BLUE;
+        if (Math.floor(i / people.length) % 2 === 0) emoji = null;
+      }
       if (emoji) {
         balloon.classList.add('is-emoji-rise');
         balloon.textContent = emoji;
