@@ -1000,7 +1000,10 @@
     populateDaySelect(Number(monthInput.value), entry ? entry.day : 1);
     yearInput.value = entry && entry.year ? entry.year : '';
     setCheckedGroups(entry ? entry.groups : ['Friends']);
-    labelInput.value = entry ? entry.label : 'Birthday';
+    // Match the saved occasion to a dropdown option regardless of capitalization;
+    // an unmatched value would blank the select and silently save as "Birthday".
+    const savedLabel = entry ? (entry.label || 'Birthday') : 'Birthday';
+    labelInput.value = OCCASIONS.find((o) => o.toLowerCase() === savedLabel.toLowerCase()) || 'Birthday';
     editingCalendarAddedAt = entry ? entry.calendarAddedAt || null : null;
     calAddedInput.checked = !!editingCalendarAddedAt;
 
