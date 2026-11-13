@@ -1,22 +1,22 @@
 (function () {
   'use strict';
 
-  const GROUPS = ['Framily', 'Sofers', 'Geris', 'Friends', 'Dia-birthdays'];
+  const GROUPS = ['Framily', 'Sofers', 'Geris', 'Friends', 'Dia-buddies'];
   const GROUP_COLORS = {
     Framily: '#9c36b5',
     Sofers: '#1971c2',
     Geris: '#f08c00',
     Friends: '#e03131',
-    'Dia-birthdays': '#4dabf7',
+    'Dia-buddies': '#4dabf7',
   };
   const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const STORAGE_KEY = 'its-a-date-entries-v1';
   const UPCOMING_WINDOW_DAYS = 7;
 
   const SEED_ENTRIES = [
-    { name: "Tia Geri", month: 1, day: 8, year: 2009, groups: ["Dia-birthdays"], label: "Dia-birthday" },
-    { name: "Benjamin Colton Robb", month: 1, day: 8, year: 2009, groups: ["Dia-birthdays"], label: "Dia-birthday" },
-    { name: "Jairi Vargas", month: 1, day: 8, year: 2013, groups: ["Dia-birthdays"], label: "Dia-birthday" },
+    { name: "Tia Geri", month: 1, day: 8, year: 2009, groups: ["Dia-buddies"], label: "Dia-birthday" },
+    { name: "Benjamin Colton Robb", month: 1, day: 8, year: 2009, groups: ["Dia-buddies"], label: "Dia-birthday" },
+    { name: "Jairi Vargas", month: 1, day: 8, year: 2013, groups: ["Dia-buddies"], label: "Dia-birthday" },
     { name: "Shlomi Cahlon", month: 1, day: 11, year: 2025, groups: ["Friends"], label: "Birthday" },
     { name: "Dr. Saleh Adi", month: 1, day: 12, year: 1961, groups: ["Friends"], label: "Birthday" },
     { name: "Gadi Ponte", month: 1, day: 20, year: 2023, groups: ["Friends"], label: "Birthday" },
@@ -301,7 +301,7 @@
   // Group names that were renamed after some devices already had entries
   // tagged with the old name. Extend this map (never remove old entries)
   // whenever a group gets renamed again.
-  const GROUP_RENAMES = { Yoga: 'Framily' };
+  const GROUP_RENAMES = { Yoga: 'Framily', 'Dia-birthdays': 'Dia-buddies' };
   function renameLegacyGroups(entries) {
     let changed = false;
     entries.forEach((e) => {
@@ -339,7 +339,7 @@
 
   // ---------- Backend: supabase ----------
   function fromRow(row) {
-    return { id: row.id, name: row.name, month: row.month, day: row.day, year: row.year, groups: row.groups, label: row.label, calendarAddedAt: row.calendar_added_at || null };
+    return { id: row.id, name: row.name, month: row.month, day: row.day, year: row.year, groups: (row.groups || []).map((g) => GROUP_RENAMES[g] || g), label: row.label, calendarAddedAt: row.calendar_added_at || null };
   }
   function toRow(entry) {
     return { name: entry.name, month: entry.month, day: entry.day, year: entry.year, groups: entry.groups, label: entry.label, calendar_added_at: entry.calendarAddedAt || null };
